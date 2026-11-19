@@ -1,13 +1,13 @@
 @if (session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
+    <div class="toast show" data-toast>{{ session('success') }}</div>
 @endif
 
 @if (session('error'))
-    <div class="alert alert-danger">{{ session('error') }}</div>
+    <div class="toast show" data-toast>{{ session('error') }}</div>
 @endif
 
 @if ($errors->any())
-    <div class="alert alert-danger">
+    <div class="alert-error">
         <strong>Periksa kembali isian berikut:</strong>
         <ul>
             @foreach ($errors->all() as $error)
