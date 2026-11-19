@@ -1,0 +1,1081 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>PinjamRuang — Temukan Ruangan Kampus</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                --ink: #17233b;
+                --muted: #7b879b;
+                --line: #e8edf4;
+                --blue: #4169e1;
+                --blue2: #edf2ff;
+                --green: #15966b;
+                --bg: #f6f8fc;
+                --white: #fff;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                background: var(--bg);
+                color: var(--ink);
+                font-family: "DM Sans", sans-serif;
+            }
+            button,
+            input,
+            select {
+                font: inherit;
+            }
+            button {
+                cursor: pointer;
+            }
+            .topbar {
+                height: 76px;
+                background: #fff;
+                border-bottom: 1px solid var(--line);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 max(5vw, 24px);
+                position: sticky;
+                top: 0;
+                z-index: 5;
+            }
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: 11px;
+                font: 800 20px Manrope;
+            }
+            .brandmark {
+                width: 36px;
+                height: 36px;
+                border-radius: 11px;
+                background: var(--blue);
+                color: #fff;
+                display: grid;
+                place-items: center;
+                font-size: 19px;
+            }
+            .nav {
+                display: flex;
+                gap: 30px;
+                color: #64718a;
+                font-size: 14px;
+            }
+            .nav a {
+                color: inherit;
+                text-decoration: none;
+            }
+            .nav a.active {
+                color: var(--blue);
+                font-weight: 700;
+            }
+            .profile {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 13px;
+                font-weight: 700;
+            }
+            .avatar {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: #dfe8ff;
+                color: #3557bd;
+                display: grid;
+                place-items: center;
+            }
+            main {
+                max-width: 1320px;
+                margin: 0 auto;
+                padding: 42px 28px 70px;
+            }
+            .eyebrow {
+                font-size: 12px;
+                font-weight: 700;
+                color: var(--blue);
+                letter-spacing: 1.4px;
+                text-transform: uppercase;
+            }
+            h1 {
+                font: 800 clamp(27px, 3vw, 38px) Manrope;
+                margin: 9px 0 8px;
+                letter-spacing: -1.2px;
+            }
+            .intro {
+                color: var(--muted);
+                margin: 0 0 28px;
+                font-size: 15px;
+            }
+            .searchbar {
+                background: #fff;
+                border: 1px solid var(--line);
+                border-radius: 16px;
+                padding: 14px;
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                box-shadow: 0 8px 24px #203b6810;
+                margin-bottom: 28px;
+            }
+            .searchfield {
+                flex: 1;
+                min-width: 0;
+                padding: 2px 12px;
+                border-right: 1px solid var(--line);
+            }
+            .searchfield:last-of-type {
+                border: 0;
+            }
+            .searchfield label {
+                display: block;
+                font-size: 11px;
+                color: var(--muted);
+                font-weight: 700;
+                margin-bottom: 5px;
+            }
+            .searchfield input,
+            .searchfield select {
+                border: 0;
+                outline: 0;
+                color: var(--ink);
+                font-weight: 600;
+                width: 100%;
+                background: transparent;
+            }
+            .primary {
+                border: 0;
+                background: var(--blue);
+                color: #fff;
+                padding: 13px 21px;
+                border-radius: 11px;
+                font-weight: 700;
+                box-shadow: 0 6px 15px #4169e133;
+            }
+            .primary:hover {
+                background: #3157ce;
+            }
+            .sectionhead {
+                display: flex;
+                align-items: end;
+                justify-content: space-between;
+                margin: 28px 0 15px;
+            }
+            .sectionhead h2 {
+                font: 800 19px Manrope;
+                margin: 0;
+            }
+            .sectionhead p {
+                color: var(--muted);
+                font-size: 13px;
+                margin: 5px 0 0;
+            }
+            .workspace {
+                display: grid;
+                grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.8fr);
+                gap: 20px;
+                align-items: stretch;
+            }
+            .mapcard,
+            .detailcard,
+            .roomlist {
+                background: #fff;
+                border: 1px solid var(--line);
+                border-radius: 18px;
+                box-shadow: 0 8px 24px #203b6808;
+            }
+            .mapcard {
+                padding: 20px;
+                min-height: 530px;
+            }
+            .maptop {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 16px;
+            }
+            .building {
+                font: 700 15px Manrope;
+            }
+            .building small {
+                display: block;
+                font: 400 12px "DM Sans";
+                color: var(--muted);
+                margin-top: 4px;
+            }
+            .floor-switch {
+                display: flex;
+                background: #f1f4f9;
+                padding: 4px;
+                border-radius: 10px;
+                gap: 3px;
+            }
+            .floor-switch button {
+                border: 0;
+                background: transparent;
+                color: #71809a;
+                padding: 8px 13px;
+                border-radius: 7px;
+                font-size: 12px;
+                font-weight: 700;
+            }
+            .floor-switch button.active {
+                background: #fff;
+                color: var(--blue);
+                box-shadow: 0 2px 7px #1c315315;
+            }
+            .legend {
+                display: flex;
+                gap: 16px;
+                color: #7b879b;
+                font-size: 11px;
+                margin: 0 0 12px;
+            }
+            .dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                display: inline-block;
+                margin-right: 5px;
+            }
+            .mapcanvas {
+                height: 405px;
+                border-radius: 14px;
+                position: relative;
+                overflow: hidden;
+                background-color: #edf1f6;
+                background-image:
+                    linear-gradient(90deg, #fff 1px, transparent 1px),
+                    linear-gradient(#fff 1px, transparent 1px);
+                background-size: 28px 28px;
+            }
+            .floorplan {
+                position: absolute;
+                inset: 7% 8%;
+                background: #fff;
+                border: 7px solid #d8e0ea;
+                border-radius: 8px;
+                box-shadow: 0 5px 18px #233b6014;
+            }
+            .floorplan:before {
+                content: "";
+                position: absolute;
+                left: 49%;
+                top: 0;
+                bottom: 0;
+                width: 9px;
+                background: #d8e0ea;
+            }
+            .floorplan:after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: 49%;
+                height: 9px;
+                background: #d8e0ea;
+            }
+            .room {
+                position: absolute;
+                border: 1px solid #cbd6e4;
+                background: #f7f9fc;
+                border-radius: 5px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                color: #75839a;
+                font-size: 10px;
+                font-weight: 700;
+                line-height: 1.4;
+                padding: 4px;
+            }
+            .room.selected {
+                background: #eaf0ff;
+                border: 2px solid var(--blue);
+                color: #3157ce;
+            }
+            .roompin {
+                position: absolute;
+                width: 34px;
+                height: 34px;
+                border: 3px solid white;
+                border-radius: 50% 50% 50% 4px;
+                transform: rotate(-45deg);
+                background: var(--blue);
+                color: white;
+                box-shadow: 0 4px 12px #1d397044;
+                display: grid;
+                place-items: center;
+                z-index: 2;
+            }
+            .roompin span {
+                transform: rotate(45deg);
+                font-size: 11px;
+                font-weight: 800;
+            }
+            .roompin:hover,
+            .roompin.active {
+                background: #15966b;
+                scale: 1.12;
+            }
+            .maplabel {
+                position: absolute;
+                bottom: 12px;
+                left: 14px;
+                background: #fff;
+                padding: 7px 10px;
+                border-radius: 8px;
+                color: #64718a;
+                font-size: 11px;
+                box-shadow: 0 3px 10px #1d31551a;
+            }
+            .detailcard {
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+            }
+            .detailimage {
+                height: 205px;
+                position: relative;
+                background: #dce4f0;
+            }
+            .detailimage img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .status {
+                position: absolute;
+                top: 14px;
+                left: 14px;
+                background: #e6fff5;
+                color: #0c8059;
+                padding: 7px 10px;
+                border-radius: 30px;
+                font-size: 11px;
+                font-weight: 700;
+            }
+            .detailbody {
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+            }
+            .detailbody h3 {
+                font: 800 20px Manrope;
+                margin: 0 0 6px;
+            }
+            .sub {
+                font-size: 12px;
+                color: var(--muted);
+                margin-bottom: 16px;
+            }
+            .stats {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+                margin-bottom: 17px;
+            }
+            .stat {
+                background: #f6f8fc;
+                padding: 11px 8px;
+                border-radius: 10px;
+            }
+            .stat strong {
+                display: block;
+                font-size: 14px;
+            }
+            .stat span {
+                font-size: 10px;
+                color: var(--muted);
+            }
+            .detailbody h4 {
+                font-size: 12px;
+                margin: 0 0 9px;
+            }
+            .chips {
+                display: flex;
+                gap: 7px;
+                flex-wrap: wrap;
+                margin-bottom: 18px;
+            }
+            .chip {
+                background: #f1f4f9;
+                color: #65728a;
+                padding: 7px 9px;
+                border-radius: 7px;
+                font-size: 11px;
+            }
+            .detailbody .primary {
+                width: 100%;
+                margin-top: auto;
+            }
+            .rooms {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 14px;
+            }
+            .roomtile {
+                border: 1px solid var(--line);
+                border-radius: 14px;
+                overflow: hidden;
+                background: #fff;
+                cursor: pointer;
+                transition: 0.2s;
+            }
+            .roomtile:hover,
+            .roomtile.active {
+                transform: translateY(-3px);
+                border-color: #9bb1ff;
+                box-shadow: 0 8px 20px #294c9b15;
+            }
+            .roomtile img {
+                width: 100%;
+                height: 125px;
+                object-fit: cover;
+                display: block;
+            }
+            .tilebody {
+                padding: 12px;
+            }
+            .tilebody strong {
+                font-size: 13px;
+                display: block;
+            }
+            .tilebody span {
+                font-size: 11px;
+                color: var(--muted);
+                display: block;
+                margin-top: 5px;
+            }
+            .tilefoot {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 11px;
+            }
+            .available {
+                font-size: 10px;
+                color: var(--green);
+                font-weight: 700;
+            }
+            .overlay {
+                position: fixed;
+                inset: 0;
+                background: #101b32a6;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                z-index: 10;
+            }
+            .overlay.show {
+                display: flex;
+            }
+            .modal {
+                background: #fff;
+                border-radius: 18px;
+                max-width: 500px;
+                width: 100%;
+                overflow: hidden;
+                box-shadow: 0 25px 70px #101b3240;
+            }
+            .modal img {
+                width: 100%;
+                height: 220px;
+                object-fit: cover;
+            }
+            .modalcontent {
+                padding: 22px;
+            }
+            .modalhead {
+                display: flex;
+                justify-content: space-between;
+                align-items: start;
+            }
+            .close {
+                border: 0;
+                background: #f1f4f9;
+                border-radius: 50%;
+                width: 32px;
+                height: 32px;
+                font-size: 18px;
+            }
+            .modal h3 {
+                font: 800 21px Manrope;
+                margin: 0;
+            }
+            .modal p {
+                color: var(--muted);
+                font-size: 13px;
+                line-height: 1.6;
+            }
+            .modalactions {
+                display: flex;
+                gap: 10px;
+                margin-top: 18px;
+            }
+            .secondary {
+                background: #f1f4f9;
+                color: #53627b;
+                border: 0;
+                padding: 12px 17px;
+                border-radius: 10px;
+                font-weight: 700;
+            }
+            .toast {
+                position: fixed;
+                bottom: 22px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #17233b;
+                color: #fff;
+                padding: 12px 18px;
+                border-radius: 10px;
+                font-size: 13px;
+                opacity: 0;
+                pointer-events: none;
+                transition: 0.25s;
+                z-index: 20;
+            }
+            .toast.show {
+                opacity: 1;
+            }
+            @media (max-width: 900px) {
+                .workspace {
+                    grid-template-columns: 1fr;
+                }
+                .mapcard {
+                    min-height: 0;
+                }
+                .detailcard {
+                    display: grid;
+                    grid-template-columns: 38% 1fr;
+                }
+                .detailimage {
+                    height: 100%;
+                    min-height: 270px;
+                }
+                .rooms {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+            @media (max-width: 600px) {
+                .topbar {
+                    padding: 0 17px;
+                }
+                .nav {
+                    display: none;
+                }
+                main {
+                    padding: 30px 16px;
+                }
+                .searchbar {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                }
+                .searchfield {
+                    border: 0;
+                    padding: 5px;
+                }
+                .searchbar .primary {
+                    grid-column: 1/-1;
+                }
+                .mapcard {
+                    padding: 13px;
+                }
+                .maptop {
+                    align-items: flex-start;
+                    gap: 10px;
+                    flex-direction: column;
+                }
+                .mapcanvas {
+                    height: 340px;
+                }
+                .floorplan {
+                    inset: 8% 4%;
+                }
+                .room {
+                    font-size: 8px;
+                }
+                .detailcard {
+                    display: flex;
+                }
+                .detailimage {
+                    height: 180px;
+                    min-height: 0;
+                }
+                .rooms {
+                    grid-template-columns: 1fr 1fr;
+                }
+                .roomtile img {
+                    height: 100px;
+                }
+                .sectionhead {
+                    align-items: flex-start;
+                    gap: 8px;
+                    flex-direction: column;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header class="topbar">
+            <div class="brand">
+                <div class="brandmark">⌂</div>
+                pinjam<span style="color: #4169e1">ruang.</span>
+            </div>
+            <nav class="nav">
+                <a class="active" href="#">Jelajahi</a
+                ><a href="#daftar">Daftar Ruangan</a
+                ><a href="#cara">Cara Booking</a>
+            </nav>
+            <div class="profile">
+                <div class="avatar">AS</div>
+                <span>Halo, Andi</span>
+            </div>
+        </header>
+        <main>
+            <div class="eyebrow">ROOM DISCOVERY · KAMPUS</div>
+            <h1>Temukan ruang yang tepat<br />untuk setiap ide.</h1>
+            <p class="intro">
+                Jelajahi gedung, pilih lantai, dan temukan ruangan kampus yang
+                tersedia untuk kegiatanmu.
+            </p>
+            <section class="searchbar">
+                <div class="searchfield">
+                    <label>GEDUNG</label
+                    ><select id="buildingSelect">
+                        <option>Gedung Fakultas A</option>
+                        <option>Gedung Perpustakaan</option>
+                        <option>Gedung Serbaguna</option>
+                    </select>
+                </div>
+                <div class="searchfield">
+                    <label>TANGGAL</label><input type="date" id="dateInput" />
+                </div>
+                <div class="searchfield">
+                    <label>WAKTU</label
+                    ><select>
+                        <option>09.00 – 11.00</option>
+                        <option>11.00 – 13.00</option>
+                        <option>13.00 – 15.00</option>
+                    </select>
+                </div>
+                <button
+                    class="primary"
+                    onclick="notify('Pencarian ruangan diperbarui (demo).')"
+                >
+                    Cari Ruangan →
+                </button>
+            </section>
+
+            <div class="sectionhead">
+                <div>
+                    <h2>Jelajahi berdasarkan denah</h2>
+                    <p>Pilih pin pada denah untuk melihat informasi ruangan.</p>
+                </div>
+            </div>
+            <section class="workspace">
+                <div class="mapcard">
+                    <div class="maptop">
+                        <div class="building">
+                            Gedung Fakultas A<small
+                                >Jl. Kampus Raya · Area Akademik</small
+                            >
+                        </div>
+                        <div class="floor-switch" aria-label="Pilih lantai">
+                            <button class="active" data-floor="1">
+                                Lantai 1</button
+                            ><button data-floor="2">Lantai 2</button
+                            ><button data-floor="3">Lantai 3</button>
+                        </div>
+                    </div>
+                    <div class="legend">
+                        <span
+                            ><i class="dot" style="background: #4169e1"></i
+                            >Dipilih</span
+                        ><span
+                            ><i class="dot" style="background: #15966b"></i
+                            >Tersedia</span
+                        ><span
+                            ><i class="dot" style="background: #c6ceda"></i>Area
+                            umum</span
+                        >
+                    </div>
+                    <div class="mapcanvas">
+                        <div class="floorplan" id="floorplan"></div>
+                        <div class="maplabel" id="maplabel">
+                            DENAH ILUSTRASI · LANTAI 1
+                        </div>
+                    </div>
+                </div>
+                <aside class="detailcard" id="detailcard">
+                    <div class="detailimage">
+                        <img
+                            id="detailImg"
+                            src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=85"
+                            alt="Interior ruang meeting"
+                        /><span class="status">● Tersedia</span>
+                    </div>
+                    <div class="detailbody">
+                        <h3 id="detailName">Ruang Diskusi A1</h3>
+                        <div class="sub" id="detailLoc">
+                            Lantai 1 · Gedung Fakultas A · A-101
+                        </div>
+                        <div class="stats">
+                            <div class="stat">
+                                <strong id="capacity">8 orang</strong
+                                ><span>Kapasitas</span>
+                            </div>
+                            <div class="stat">
+                                <strong id="area">24 m²</strong
+                                ><span>Luas ruang</span>
+                            </div>
+                            <div class="stat">
+                                <strong id="floorText">Lantai 1</strong
+                                ><span>Lokasi</span>
+                            </div>
+                        </div>
+                        <h4>Fasilitas ruangan</h4>
+                        <div class="chips" id="amenities">
+                            <span class="chip">Wi-Fi</span
+                            ><span class="chip">TV Display</span
+                            ><span class="chip">Whiteboard</span>
+                        </div>
+                        <button class="primary" onclick="bookRoom()">
+                            Lihat detail & booking →
+                        </button>
+                    </div>
+                </aside>
+            </section>
+
+            <div class="sectionhead" id="daftar">
+                <div>
+                    <h2>Ruangan di lantai ini</h2>
+                    <p>Klik salah satu kartu untuk melihat overview ruangan.</p>
+                </div>
+            </div>
+            <section class="rooms" id="roomList"></section>
+        </main>
+        <div class="overlay" id="modal">
+            <div class="modal">
+                <img id="modalImg" src="" alt="Foto ruangan" />
+                <div class="modalcontent">
+                    <div class="modalhead">
+                        <div>
+                            <div class="eyebrow">ROOM OVERVIEW</div>
+                            <h3 id="modalName">Ruang Diskusi A1</h3>
+                        </div>
+                        <button class="close" onclick="closeModal()">×</button>
+                    </div>
+                    <p id="modalDesc">
+                        Ruangan nyaman untuk diskusi kelompok dan rapat kecil.
+                    </p>
+                    <div class="stats">
+                        <div class="stat">
+                            <strong id="modalCap">8 orang</strong
+                            ><span>Kapasitas</span>
+                        </div>
+                        <div class="stat">
+                            <strong id="modalSize">24 m²</strong
+                            ><span>Luas</span>
+                        </div>
+                        <div class="stat">
+                            <strong id="modalFloor">Lantai 1</strong
+                            ><span>Lokasi</span>
+                        </div>
+                    </div>
+                    <div class="modalactions">
+                        <button class="secondary" onclick="closeModal()">
+                            Kembali</button
+                        ><button
+                            class="primary"
+                            style="flex: 1"
+                            onclick="
+                                notify(
+                                    'Form booking akan dihubungkan ke Laravel.',
+                                );
+                                closeModal();
+                            "
+                        >
+                            Booking ruangan →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="toast" id="toast"></div>
+        <script>
+            const roomsByFloor = {
+                1: [
+                    {
+                        id: "A1",
+                        name: "Ruang Diskusi A1",
+                        code: "A-101",
+                        cap: 8,
+                        size: 24,
+                        x: 10,
+                        y: 10,
+                        w: 34,
+                        h: 34,
+                        img: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=85",
+                        amen: ["Wi-Fi", "TV Display", "Whiteboard"],
+                        desc: "Ruang diskusi modern untuk kelompok kecil, rapat organisasi, dan sesi brainstorming. Dilengkapi layar presentasi dan papan tulis.",
+                    },
+                    {
+                        id: "A2",
+                        name: "Ruang Kelas A2",
+                        code: "A-102",
+                        cap: 30,
+                        size: 48,
+                        x: 60,
+                        y: 10,
+                        w: 34,
+                        h: 34,
+                        img: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=900&q=85",
+                        amen: ["Proyektor", "AC", "Speaker"],
+                        desc: "Ruang kelas fleksibel untuk kuliah, pelatihan, dan presentasi.",
+                    },
+                    {
+                        id: "A3",
+                        name: "Meeting Room A3",
+                        code: "A-103",
+                        cap: 12,
+                        size: 30,
+                        x: 10,
+                        y: 60,
+                        w: 34,
+                        h: 34,
+                        img: "https://images.unsplash.com/photo-1517502884422-41ea1aebe9c8?auto=format&fit=crop&w=900&q=85",
+                        amen: ["Video Conference", "Wi-Fi", "AC"],
+                        desc: "Ruang rapat dengan suasana profesional dan fasilitas konferensi.",
+                    },
+                    {
+                        id: "A4",
+                        name: "Ruang Seminar A4",
+                        code: "A-104",
+                        cap: 60,
+                        size: 90,
+                        x: 60,
+                        y: 60,
+                        w: 34,
+                        h: 34,
+                        img: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=900&q=85",
+                        amen: ["Proyektor", "Sound System", "AC"],
+                        desc: "Ruang seminar untuk acara akademik, kuliah tamu, dan presentasi.",
+                    },
+                ],
+                2: [
+                    {
+                        id: "B1",
+                        name: "Lab Komputer B1",
+                        code: "B-201",
+                        cap: 25,
+                        size: 60,
+                        x: 10,
+                        y: 10,
+                        w: 34,
+                        h: 34,
+                        img: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&w=900&q=85",
+                        amen: ["25 Komputer", "LAN", "Proyektor"],
+                        desc: "Laboratorium komputer untuk praktikum dan pelatihan digital.",
+                    },
+                    {
+                        id: "B2",
+                        name: "Ruang Kolaborasi B2",
+                        code: "B-202",
+                        cap: 10,
+                        size: 28,
+                        x: 60,
+                        y: 10,
+                        w: 34,
+                        h: 34,
+                        img: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=85",
+                        amen: ["Wi-Fi", "Smart TV", "Whiteboard"],
+                        desc: "Area kolaborasi terbuka untuk diskusi dan kerja kelompok.",
+                    },
+                    {
+                        id: "B3",
+                        name: "Studio Multimedia B3",
+                        code: "B-203",
+                        cap: 15,
+                        size: 42,
+                        x: 10,
+                        y: 60,
+                        w: 34,
+                        h: 34,
+                        img: "https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?auto=format&fit=crop&w=900&q=85",
+                        amen: ["Kamera", "Lighting", "Audio"],
+                        desc: "Studio untuk produksi konten, dokumentasi, dan kegiatan multimedia.",
+                    },
+                ],
+                3: [
+                    {
+                        id: "C1",
+                        name: "Ruang Rapat C1",
+                        code: "C-301",
+                        cap: 14,
+                        size: 35,
+                        x: 10,
+                        y: 10,
+                        w: 34,
+                        h: 34,
+                        img: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=85",
+                        amen: ["Video Conference", "Wi-Fi", "AC"],
+                        desc: "Ruang rapat untuk koordinasi tim dan pertemuan formal.",
+                    },
+                    {
+                        id: "C2",
+                        name: "Auditorium Mini C2",
+                        code: "C-302",
+                        cap: 80,
+                        size: 110,
+                        x: 60,
+                        y: 10,
+                        w: 34,
+                        h: 34,
+                        img: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=900&q=85",
+                        amen: ["Sound System", "Proyektor", "AC"],
+                        desc: "Auditorium mini untuk presentasi, kuliah umum, dan diskusi panel.",
+                    },
+                ],
+            };
+            let floor = 1,
+                selected = null;
+            const plan = document.getElementById("floorplan");
+            function renderFloor() {
+                const rooms = roomsByFloor[floor];
+                selected = rooms[0];
+                plan.innerHTML = "";
+                // corridor and rooms are schematic; each pin corresponds to a selectable room.
+                rooms.forEach((r, i) => {
+                    const block = document.createElement("div");
+                    block.className = "room" + (i === 0 ? " selected" : "");
+                    block.style.cssText = `left:${r.x}%;top:${r.y}%;width:${r.w}%;height:${r.h}%`;
+                    block.textContent = r.name;
+                    plan.appendChild(block);
+                    const pin = document.createElement("button");
+                    pin.className = "roompin" + (i === 0 ? " active" : "");
+                    pin.style.cssText = `left:calc(${r.x + r.w / 2}% - 17px);top:calc(${r.y + r.h / 2}% - 17px)`;
+                    pin.innerHTML = `<span>${r.id}</span>`;
+                    pin.title = r.name;
+                    pin.onclick = () => selectRoom(r);
+                    plan.appendChild(pin);
+                });
+                document.getElementById("maplabel").textContent =
+                    `DENAH ILUSTRASI · LANTAI ${floor}`;
+                document.getElementById("floorText").textContent =
+                    `Lantai ${floor}`;
+                document
+                    .querySelectorAll(".floor-switch button")
+                    .forEach((b) =>
+                        b.classList.toggle(
+                            "active",
+                            Number(b.dataset.floor) === floor,
+                        ),
+                    );
+                renderList();
+                updateDetail(selected);
+            }
+            function selectRoom(r) {
+                selected = r;
+                updateDetail(r);
+                document
+                    .querySelectorAll(".roompin")
+                    .forEach((p) =>
+                        p.classList.toggle(
+                            "active",
+                            p.querySelector("span").textContent === r.id,
+                        ),
+                    );
+                document
+                    .querySelectorAll(".room")
+                    .forEach((el, i) =>
+                        el.classList.toggle(
+                            "selected",
+                            roomsByFloor[floor][i].id === r.id,
+                        ),
+                    );
+                document
+                    .querySelectorAll(".roomtile")
+                    .forEach((el) =>
+                        el.classList.toggle("active", el.dataset.id === r.id),
+                    );
+            }
+            function updateDetail(r) {
+                document.getElementById("detailImg").src = r.img;
+                document.getElementById("detailName").textContent = r.name;
+                document.getElementById("detailLoc").textContent =
+                    `Lantai ${floor} · Gedung Fakultas A · ${r.code}`;
+                document.getElementById("capacity").textContent =
+                    `${r.cap} orang`;
+                document.getElementById("area").textContent = `${r.size} m²`;
+                document.getElementById("floorText").textContent =
+                    `Lantai ${floor}`;
+                document.getElementById("amenities").innerHTML = r.amen
+                    .map((a) => `<span class="chip">${a}</span>`)
+                    .join("");
+            }
+            function renderList() {
+                document.getElementById("roomList").innerHTML = roomsByFloor[
+                    floor
+                ]
+                    .map(
+                        (r) =>
+                            `<article class="roomtile ${selected && selected.id === r.id ? "active" : ""}" data-id="${r.id}" onclick="selectRoom(roomsByFloor[floor].find(x=>x.id==='${r.id}'))"><img src="${r.img}" alt="${r.name}"><div class="tilebody"><strong>${r.name}</strong><span>${r.code} · ${r.cap} orang</span><div class="tilefoot"><span class="available">● Tersedia</span><span style="font-size:11px;color:#4169e1;font-weight:700">Lihat →</span></div></div></article>`,
+                    )
+                    .join("");
+            }
+            document.querySelectorAll(".floor-switch button").forEach((b) =>
+                b.addEventListener("click", () => {
+                    floor = Number(b.dataset.floor);
+                    renderFloor();
+                }),
+            );
+            function bookRoom() {
+                if (!selected) return;
+                document.getElementById("modalImg").src = selected.img;
+                document.getElementById("modalName").textContent =
+                    selected.name;
+                document.getElementById("modalDesc").textContent =
+                    selected.desc;
+                document.getElementById("modalCap").textContent =
+                    `${selected.cap} orang`;
+                document.getElementById("modalSize").textContent =
+                    `${selected.size} m²`;
+                document.getElementById("modalFloor").textContent =
+                    `Lantai ${floor}`;
+                document.getElementById("modal").classList.add("show");
+            }
+            function closeModal() {
+                document.getElementById("modal").classList.remove("show");
+            }
+            document.getElementById("modal").addEventListener("click", (e) => {
+                if (e.target.id === "modal") closeModal();
+            });
+            function notify(msg) {
+                const t = document.getElementById("toast");
+                t.textContent = msg;
+                t.classList.add("show");
+                setTimeout(() => t.classList.remove("show"), 2500);
+            }
+            document.getElementById("dateInput").value = new Date()
+                .toISOString()
+                .slice(0, 10);
+            renderFloor();
+        </script>
+    </body>
+</html>

@@ -5,15 +5,25 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Room;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class BookingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
-        $bookings = in_array($user->role, ['admin', 'petugas'], true)
-            ? Booking::with(['room', 'user', 'approver'])->latest()->paginate(10)
-            : Booking::with(['room', 'approver'])->where('user_id', $user->id)->latest()->paginate(10);
+        $bookings = Booking::with(['room', 'user', 'approver']);
+
+        if (! in_array($user->role, ['admin', 'petugas'], true)) {
+            $bookings->where('user_id', $user->id);
+        }
+
+        if ($request->filled('status')) {
+            $bookings->where('status', $request->string('status'));
+        }
+
+        $bookings = $bookings->latest()->paginate(10)->withQueryString();
 
         return view('bookings.index', compact('bookings'));
     }
@@ -40,39 +50,43 @@ class BookingController extends Controller
             'jumlah_peserta.min' => 'Jumlah peserta minimal 1.',
         ]);
 
-        $room = Room::findOrFail($validated['room_id']);
+        DB::transaction(function () use ($validated) {
+            $room = Room::whereKey($validated['room_id'])->lockForUpdate()->firstOrFail();
 
-        if ($room->status !== 'tersedia') {
-            return back()->withErrors(['room_id' => 'Ruang sedang tidak tersedia untuk dipinjam.'])->withInput();
-        }
+            if ($room->status !== 'tersedia') {
+                throw ValidationException::withMessages([
+                    'room_id' => 'Ruang sedang tidak tersedia untuk dipinjam.',
+                ]);
+            }
 
-        if (! empty($validated['jumlah_peserta']) && $validated['jumlah_peserta'] > $room->kapasitas) {
-            return back()->withErrors([
-                'jumlah_peserta' => 'Jumlah peserta tidak boleh melebihi kapasitas ruang.',
-            ])->withInput();
-        }
+            if (! empty($validated['jumlah_peserta']) && $validated['jumlah_peserta'] > $room->kapasitas) {
+                throw ValidationException::withMessages([
+                    'jumlah_peserta' => 'Jumlah peserta tidak boleh melebihi kapasitas ruang.',
+                ]);
+            }
 
-        $jadwalAktif = Booking::where('room_id', $room->id)
-            ->whereIn('status', ['menunggu', 'disetujui'])
-            ->get(['tanggal', 'jam_mulai', 'jam_selesai'])
-            ->filter(fn (Booking $booking) => $booking->tanggal->toDateString() === $validated['tanggal']);
+            $jadwalAktif = Booking::where('room_id', $room->id)
+                ->whereIn('status', ['menunggu', 'disetujui'])
+                ->lockForUpdate()
+                ->get(['tanggal', 'jam_mulai', 'jam_selesai'])
+                ->filter(fn (Booking $booking) => $booking->tanggal->toDateString() === $validated['tanggal']);
 
-        $berbenturan = $jadwalAktif->contains(function (Booking $booking) use ($validated) {
-            return $validated['jam_mulai'] < $booking->jam_selesai
-                && $validated['jam_selesai'] > $booking->jam_mulai;
+            $berbenturan = $jadwalAktif->contains(function (Booking $booking) use ($validated) {
+                return $validated['jam_mulai'] < $booking->jam_selesai
+                    && $validated['jam_selesai'] > $booking->jam_mulai;
+            });
+
+            if ($berbenturan) {
+                throw ValidationException::withMessages([
+                    'jam_mulai' => 'Jadwal bentrok dengan peminjaman yang menunggu atau sudah disetujui.',
+                ]);
+            }
+
+            $booking = new Booking($validated);
+            $booking->user_id = auth()->id();
+            $booking->status = 'menunggu';
+            $booking->save();
         });
-
-        if ($berbenturan) {
-            return back()->withErrors([
-                'jam_mulai' => 'Jadwal bentrok dengan peminjaman yang menunggu atau sudah disetujui.',
-            ])->withInput();
-        }
-
-        $booking = Booking::create([
-            ...$validated,
-            'user_id' => auth()->id(),
-            'status' => 'menunggu',
-        ]);
 
         return redirect()->route('bookings.index')
             ->with('success', 'Pengajuan peminjaman berhasil dibuat.');
@@ -107,11 +121,31 @@ class BookingController extends Controller
             'catatan_admin' => 'nullable|string',
         ]);
 
-        $booking->update([
-            'status' => 'disetujui',
-            'approved_by' => auth()->id(),
-            'catatan_admin' => $validated['catatan_admin'] ?? null,
-        ]);
+        DB::transaction(function () use ($booking, $validated) {
+            $room = Room::whereKey($booking->room_id)->lockForUpdate()->firstOrFail();
+            $berbenturan = Booking::where('room_id', $room->id)
+                ->whereKeyNot($booking->id)
+                ->whereDate('tanggal', $booking->tanggal->toDateString())
+                ->whereIn('status', ['menunggu', 'disetujui'])
+                ->lockForUpdate()
+                ->get(['jam_mulai', 'jam_selesai'])
+                ->contains(function (Booking $lain) use ($booking) {
+                    return $booking->jam_mulai < $lain->jam_selesai
+                        && $booking->jam_selesai > $lain->jam_mulai;
+                });
+
+            if ($berbenturan) {
+                throw ValidationException::withMessages([
+                    'jam_mulai' => 'Persetujuan ditolak karena jadwal bentrok dengan peminjaman lain.',
+                ]);
+            }
+
+            $booking->update([
+                'status' => 'disetujui',
+                'approved_by' => auth()->id(),
+                'catatan_admin' => $validated['catatan_admin'] ?? null,
+            ]);
+        });
 
         return redirect()->route('bookings.index')
             ->with('success', 'Peminjaman berhasil disetujui.');

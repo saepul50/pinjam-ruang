@@ -10,14 +10,24 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $bookingQuery = in_array($user->role, ['admin', 'petugas'], true)
-            ? Booking::query()
-            : Booking::where('user_id', $user->id);
-
-        return view('dashboard', [
+        $data = [
             'totalRuang' => Room::count(),
-            'peminjamanMenunggu' => (clone $bookingQuery)->where('status', 'menunggu')->count(),
-            'peminjamanHariIni' => (clone $bookingQuery)->whereDate('tanggal', now()->toDateString())->count(),
-        ]);
+        ];
+
+        if (in_array($user->role, ['admin', 'petugas'], true)) {
+            $data['peminjamanMenunggu'] = Booking::where('status', 'menunggu')->count();
+            $data['peminjamanHariIni'] = Booking::whereDate('tanggal', now()->toDateString())->count();
+        } else {
+            $data['jumlahPeminjamanSaya'] = Booking::where('user_id', $user->id)->count();
+            $data['peminjamanTerdekat'] = Booking::with('room')
+                ->where('user_id', $user->id)
+                ->whereIn('status', ['menunggu', 'disetujui'])
+                ->whereDate('tanggal', '>=', now()->toDateString())
+                ->orderBy('tanggal')
+                ->orderBy('jam_mulai')
+                ->first();
+        }
+
+        return view('dashboard', $data);
     }
 }

@@ -22,11 +22,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
         'nim_nip',
         'no_hp',
         'organisasi',
-        'remember_token',
     ];
 
     /**

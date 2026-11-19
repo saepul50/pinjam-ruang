@@ -8,10 +8,31 @@ use Illuminate\Http\Request;
 
 class RoomController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $rooms = Room::with('roomCategory');
+
+        if ($request->filled('kategori')) {
+            $rooms->where('room_category_id', $request->integer('kategori'));
+        }
+        if ($request->filled('status')) {
+            $rooms->where('status', $request->string('status'));
+        }
+        if ($request->filled('kapasitas_min')) {
+            $rooms->where('kapasitas', '>=', $request->integer('kapasitas_min'));
+        }
+        if ($request->filled('search')) {
+            $search = $request->string('search')->toString();
+            $rooms->where(function ($query) use ($search) {
+                $query->where('kode', 'like', '%' . $search . '%')
+                    ->orWhere('nama', 'like', '%' . $search . '%')
+                    ->orWhere('lokasi', 'like', '%' . $search . '%');
+            });
+        }
+
         return view('rooms.index', [
-            'rooms' => Room::with('roomCategory')->latest()->paginate(10),
+            'rooms' => $rooms->latest()->paginate(10)->withQueryString(),
+            'categories' => RoomCategory::orderBy('nama')->get(),
         ]);
     }
 
@@ -48,10 +69,21 @@ class RoomController extends Controller
             ->with('success', 'Ruang berhasil ditambahkan.');
     }
 
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
+        $room = Room::with('roomCategory')->findOrFail($id);
+        $tanggal = $request->filled('tanggal')
+            ? $request->string('tanggal')->toString()
+            : now()->toDateString();
+
         return view('rooms.show', [
-            'room' => Room::with('roomCategory')->findOrFail($id),
+            'room' => $room,
+            'tanggal' => $tanggal,
+            'jadwalTerisi' => $room->bookings()
+                ->whereDate('tanggal', $tanggal)
+                ->whereIn('status', ['menunggu', 'disetujui'])
+                ->orderBy('jam_mulai')
+                ->get(),
         ]);
     }
 

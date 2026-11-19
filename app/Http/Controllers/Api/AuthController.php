@@ -29,7 +29,8 @@ class AuthController extends Controller
         }
 
         $token = bin2hex(random_bytes(32));
-        $user->update(['remember_token' => $token]);
+        $user->remember_token = $token;
+        $user->save();
 
         return response()->json([
             'message' => 'Login berhasil.',
@@ -41,7 +42,9 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->update(['remember_token' => null]);
+        $user = $request->user();
+        $user->remember_token = null;
+        $user->save();
 
         return response()->json([
             'message' => 'Logout berhasil.',
