@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Room;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class RoomController extends Controller
 {
@@ -25,6 +27,12 @@ class RoomController extends Controller
 
         if ($request->filled('kapasitas_min')) {
             $rooms->where('kapasitas', '>=', (int) $request->query('kapasitas_min'));
+        }
+        if ($request->filled('gedung')) {
+            $rooms->where('gedung', $request->query('gedung'));
+        }
+        if ($request->filled('lantai')) {
+            $rooms->where('lantai', (int) $request->query('lantai'));
         }
 
         if ($request->filled('search')) {
@@ -51,7 +59,15 @@ class RoomController extends Controller
     public function store(Request $request)
     {
         $validated = $this->validateRoom($request);
-        $room = Room::create($validated);
+        $room = DB::transaction(function () use ($validated) {
+            $validated['posisi_denah'] = $this->resolveDenahSlot(
+                $validated['gedung'],
+                $validated['lantai'],
+                $validated['posisi_denah'] ?? null
+            );
+
+            return Room::create($validated);
+        });
 
         return response()->json([
             'message' => 'Ruang berhasil ditambahkan.',
@@ -63,7 +79,15 @@ class RoomController extends Controller
     {
         $room = Room::findOrFail($id);
         $validated = $this->validateRoom($request, $room->id);
-        $room->update($validated);
+        DB::transaction(function () use ($room, $validated) {
+            $validated['posisi_denah'] = $this->resolveDenahSlot(
+                $validated['gedung'],
+                $validated['lantai'],
+                $validated['posisi_denah'] ?? null,
+                $room->id
+            );
+            $room->update($validated);
+        });
 
         return response()->json([
             'message' => 'Ruang berhasil diperbarui.',
@@ -115,6 +139,51 @@ class RoomController extends Controller
         ]);
     }
 
+    private function resolveDenahSlot(
+        string $gedung,
+        int $lantai,
+        ?int $posisi,
+        ?int $exceptId = null
+    ): int {
+        $query = Room::where('gedung', $gedung)
+            ->where('lantai', $lantai)
+            ->lockForUpdate();
+
+        if ($exceptId) {
+            $query->whereKeyNot($exceptId);
+        }
+
+        $rooms = $query->get(['posisi_denah']);
+
+        if ($rooms->count() >= 4) {
+            throw ValidationException::withMessages([
+                'lantai' => 'Lantai ini sudah penuh (maksimal 4 ruang)',
+            ]);
+        }
+
+        if ($posisi !== null) {
+            if ($rooms->contains('posisi_denah', $posisi)) {
+                throw ValidationException::withMessages([
+                    'posisi_denah' => 'Slot denah sudah terpakai',
+                ]);
+            }
+
+            return $posisi;
+        }
+
+        $terpakai = $rooms->pluck('posisi_denah')->filter()->map(fn ($slot) => (int) $slot)->all();
+
+        for ($slot = 1; $slot <= 4; $slot++) {
+            if (! in_array($slot, $terpakai, true)) {
+                return $slot;
+            }
+        }
+
+        throw ValidationException::withMessages([
+            'lantai' => 'Lantai ini sudah penuh (maksimal 4 ruang)',
+        ]);
+    }
+
     private function validateRoom(Request $request, ?int $roomId = null): array
     {
         $kodeRule = 'required|string|max:255|unique:rooms,kode';
@@ -127,13 +196,13 @@ class RoomController extends Controller
             'kode' => $kodeRule,
             'nama' => 'required|string|max:255',
             'kapasitas' => 'required|integer|min:1',
-            'lokasi' => 'required|string|max:255',
+            'lokasi' => 'nullable|string|max:150',
             'fasilitas' => 'nullable|string',
             'deskripsi' => 'nullable|string',
             'status' => 'required|in:tersedia,perbaikan,nonaktif',
-            'gedung' => 'nullable|string|max:100',
-            'lantai' => 'nullable|integer|min:1|max:20',
-            'luas_m2' => 'nullable|integer|min:1',
+            'gedung' => 'required|string|max:100',
+            'lantai' => 'required|integer|min:1|max:20',
+            'posisi_denah' => 'nullable|integer|between:1,4',
             'foto_url' => 'nullable|url:http,https|max:255',
         ], [
             'room_category_id.required' => 'Kategori ruang wajib dipilih.',

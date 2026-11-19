@@ -100,6 +100,66 @@ class ApiBookingTest extends TestCase
         ])->assertForbidden();
     }
 
+    public function test_room_requires_floor(): void
+    {
+        $admin = $this->createUser('admin', 'admin-room@kampus.ac.id');
+        $login = $this->postJson('/api/login', [
+            'email' => $admin->email,
+            'password' => 'password',
+        ]);
+        $roomCategory = RoomCategory::create([
+            'nama' => 'Kategori Lantai',
+            'deskripsi' => 'Kategori pengujian lantai',
+        ]);
+
+        $this->withToken($login->json('token'))->postJson('/api/rooms', [
+            'room_category_id' => $roomCategory->id,
+            'kode' => 'RK-NOLANTAI',
+            'nama' => 'Tanpa Lantai',
+            'kapasitas' => 20,
+            'lokasi' => 'Sayap kiri',
+            'gedung' => 'Gedung A',
+            'status' => 'tersedia',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['lantai']);
+    }
+
+    public function test_room_rejects_used_floor_slot(): void
+    {
+        $admin = $this->createUser('admin', 'admin-slot@kampus.ac.id');
+        $login = $this->postJson('/api/login', [
+            'email' => $admin->email,
+            'password' => 'password',
+        ]);
+        $roomCategory = RoomCategory::create([
+            'nama' => 'Kategori Slot',
+            'deskripsi' => 'Kategori pengujian slot',
+        ]);
+        $this->createRoom();
+        $existing = Room::where('kode', 'RK-UJI')->first();
+
+        $this->withToken($login->json('token'))->postJson('/api/rooms', [
+            'room_category_id' => $roomCategory->id,
+            'kode' => 'RK-SLOT',
+            'nama' => 'Slot Bentrok',
+            'kapasitas' => 20,
+            'lokasi' => 'Sayap kiri',
+            'gedung' => $existing->gedung,
+            'lantai' => $existing->lantai,
+            'posisi_denah' => $existing->posisi_denah,
+            'status' => 'tersedia',
+        ])->assertUnprocessable();
+    }
+
+    public function test_room_filter_by_floor_returns_seeded_rooms(): void
+    {
+        $this->createRoomFloorData();
+
+        $this->getJson('/api/rooms?lantai=2')
+            ->assertOk()
+            ->assertJsonCount(4, 'data.data');
+    }
+
     public function test_overlapping_booking_is_rejected(): void
     {
         $peminjam = $this->createUser('peminjam');
@@ -183,8 +243,38 @@ class ApiBookingTest extends TestCase
             'kode' => 'RK-UJI',
             'nama' => 'Ruang Uji',
             'kapasitas' => 30,
-            'lokasi' => 'Gedung Uji',
+            'lokasi' => 'Sayap kiri',
+            'gedung' => 'Gedung Uji',
+            'lantai' => 2,
+            'posisi_denah' => 1,
             'status' => 'tersedia',
         ]);
+    }
+
+    private function createRoomFloorData(): void
+    {
+        $category = RoomCategory::create([
+            'nama' => 'Kategori lantai 2',
+            'deskripsi' => 'Kategori pengujian filter lantai',
+        ]);
+
+        foreach ([
+            ['RK-201', 'Ruang Kelas 201', 1],
+            ['LAB-02', 'Lab Jaringan', 2],
+            ['LAB-03', 'Lab Multimedia', 3],
+            ['AUL-02', 'Aula Mini', 4],
+        ] as [$kode, $nama, $posisi]) {
+            Room::create([
+                'room_category_id' => $category->id,
+                'kode' => $kode,
+                'nama' => $nama,
+                'kapasitas' => 30,
+                'lokasi' => 'Lantai dua',
+                'gedung' => 'Gedung Uji',
+                'lantai' => 2,
+                'posisi_denah' => $posisi,
+                'status' => 'tersedia',
+            ]);
+        }
     }
 }

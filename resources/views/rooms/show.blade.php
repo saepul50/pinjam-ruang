@@ -6,7 +6,7 @@
     @include('partials.page-header', [
         'eyebrow' => 'Detail Ruang',
         'title' => $room->nama,
-        'subtitle' => $room->lokasi,
+        'subtitle' => $room->lokasi_lengkap,
     ])
 
     <p><a class="btn btn-secondary" href="{{ route('rooms.index') }}">&larr; Kembali ke daftar ruang</a></p>
@@ -52,12 +52,12 @@
             <div class="detailbody">
                 @include('partials.status-badge', ['status' => $room->status])
                 <h2>{{ $room->nama }}</h2>
-                <p class="page-intro">{{ $room->lokasi }}</p>
+                <p class="page-intro">{{ $room->lokasi_lengkap }}</p>
 
                 <div class="stats">
                     @include('partials.stat-card', ['label' => 'Kapasitas', 'value' => $room->kapasitas . ' orang'])
-                    @include('partials.stat-card', ['label' => 'Luas', 'value' => ($room->luas_m2 ? $room->luas_m2 . ' m²' : '-')])
                     @include('partials.stat-card', ['label' => 'Lantai', 'value' => ($room->lantai ? 'Lantai ' . $room->lantai : '-')])
+                    @include('partials.stat-card', ['label' => 'Status', 'value' => ucfirst($room->status)])
                 </div>
 
                 <div class="chips">

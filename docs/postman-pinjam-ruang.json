@@ -269,7 +269,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"room_category_id\": 1,\n  \"kode\": \"RK-UJI\",\n  \"nama\": \"Ruang Uji\",\n  \"kapasitas\": 30,\n  \"lokasi\": \"Gedung Fakultas Uji Lantai 1\",\n  \"gedung\": \"Gedung Fakultas Uji\",\n  \"lantai\": 1,\n  \"luas_m2\": 45,\n  \"foto_url\": null,\n  \"fasilitas\": \"Proyektor, AC\",\n  \"deskripsi\": \"Ruang untuk pengujian API\",\n  \"status\": \"tersedia\"\n}",
+              "raw": "{\n  \"room_category_id\": 1,\n  \"kode\": \"RK-UJI\",\n  \"nama\": \"Ruang Uji\",\n  \"kapasitas\": 30,\n  \"lokasi\": \"Sayap kiri\",\n  \"gedung\": \"Gedung A\",\n  \"lantai\": 3,\n  \"posisi_denah\": null,\n  \"foto_url\": null,\n  \"fasilitas\": \"Proyektor, AC\",\n  \"deskripsi\": \"Ruang untuk pengujian API\",\n  \"status\": \"tersedia\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -299,7 +299,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"room_category_id\": 1,\n  \"kode\": \"RK-101\",\n  \"nama\": \"Ruang Kelas 101\",\n  \"kapasitas\": 40,\n  \"lokasi\": \"Gedung Fakultas A Lantai 1\",\n  \"gedung\": \"Gedung Fakultas A\",\n  \"lantai\": 1,\n  \"luas_m2\": 48,\n  \"foto_url\": null,\n  \"fasilitas\": \"Proyektor, AC, papan tulis\",\n  \"deskripsi\": \"Ruang perkuliahan\",\n  \"status\": \"tersedia\"\n}",
+              "raw": "{\n  \"room_category_id\": 1,\n  \"kode\": \"RK-101\",\n  \"nama\": \"Ruang Kelas 101\",\n  \"kapasitas\": 40,\n  \"lokasi\": \"Sayap kiri\",\n  \"gedung\": \"Gedung A\",\n  \"lantai\": 1,\n  \"posisi_denah\": 1,\n  \"foto_url\": null,\n  \"fasilitas\": \"Proyektor, AC, papan tulis\",\n  \"deskripsi\": \"Ruang perkuliahan\",\n  \"status\": \"tersedia\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

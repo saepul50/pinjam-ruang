@@ -31,21 +31,27 @@
 
             <div class="mapcanvas">
                 <div class="floorplan">
-                    @forelse ($ruangDenah as $index => $room)
-                        @php $selected = (int) request('room_id') === $room->id || ((int) request('room_id') === 0 && $index === 0); @endphp
-                        <a class="room room-position-{{ $index + 1 }} {{ $selected ? 'selected' : '' }}"
-                           href="{{ route('rooms.index', ['gedung' => $gedungAktif, 'lantai' => $lantaiAktif, 'room_id' => $room->id]) }}"
-                           title="{{ $room->nama }}">
-                            {{ $room->nama }}
-                        </a>
-                        <a class="roompin position-{{ $index + 1 }} {{ $selected ? 'active' : '' }}"
-                           href="{{ route('rooms.index', ['gedung' => $gedungAktif, 'lantai' => $lantaiAktif, 'room_id' => $room->id]) }}"
-                           title="{{ $room->nama }}">
-                            <span>{{ $index + 1 }}</span>
-                        </a>
-                    @empty
-                        <div class="empty">Belum ada ruang pada lantai ini.</div>
-                    @endforelse
+                    @for ($slot = 1; $slot <= 4; $slot++)
+                        @php
+                            $room = $ruangDenah->first(fn ($item) => (int) $item->posisi_denah === $slot);
+                            $selected = $room
+                                ? ((int) request('room_id') === $room->id || ((int) request('room_id') === 0 && $slot === 1))
+                                : false;
+                        @endphp
+
+                        @if ($room)
+                            <div class="room-cell {{ $selected ? 'selected' : '' }} {{ in_array($room->status, ['perbaikan', 'nonaktif']) ? 'is-unavailable' : '' }}">
+                                <span class="room-name">{{ $room->nama }}</span>
+                                <a class="roompin"
+                                   href="{{ route('rooms.index', ['gedung' => $gedungAktif, 'lantai' => $lantaiAktif, 'room_id' => $room->id]) }}"
+                                   aria-label="Pilih {{ $room->nama }}">
+                                    <span>{{ $room->kode }}</span>
+                                </a>
+                            </div>
+                        @else
+                            <div class="room-cell room-empty"><span>Kosong</span></div>
+                        @endif
+                    @endfor
                 </div>
                 <div class="maplabel">DENAH ILUSTRASI · LANTAI {{ $lantaiAktif }}</div>
             </div>
@@ -70,11 +76,11 @@
                 @endif
                 <div class="detailbody">
                     <h3>{{ $ruangTerpilih->nama }}</h3>
-                    <div class="sub">{{ $ruangTerpilih->lokasi }}</div>
+                    <div class="sub">{{ $ruangTerpilih->lokasi_lengkap }}</div>
                     <div class="stats">
                         @include('partials.stat-card', ['label' => 'Kapasitas', 'value' => $ruangTerpilih->kapasitas . ' orang'])
-                        @include('partials.stat-card', ['label' => 'Luas ruang', 'value' => ($ruangTerpilih->luas_m2 ? $ruangTerpilih->luas_m2 . ' m²' : '-')])
                         @include('partials.stat-card', ['label' => 'Lokasi', 'value' => ($ruangTerpilih->lantai ? 'Lantai ' . $ruangTerpilih->lantai : '-')])
+                        @include('partials.stat-card', ['label' => 'Status', 'value' => ucfirst($ruangTerpilih->status)])
                     </div>
                     <h4>Fasilitas ruangan</h4>
                     <div class="chips">

@@ -6,7 +6,7 @@
     @endif
     <div class="roomtile-body">
         <strong>{{ $room->nama }}</strong>
-        <div class="roomtile-meta">{{ $room->kode }} · {{ $room->kapasitas }} orang</div>
+        <div class="roomtile-meta">{{ $room->kode }} · {{ $room->kapasitas }} orang · Lantai {{ $room->lantai }}</div>
         <div class="roomtile-foot">
             @include('partials.status-badge', ['status' => $room->status])
             <a class="btn btn-sm btn-secondary" href="{{ route('rooms.show', $room) }}">Lihat →</a>

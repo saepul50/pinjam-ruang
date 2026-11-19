@@ -22,7 +22,7 @@ class Room extends Model
         'status',
         'gedung',
         'lantai',
-        'luas_m2',
+        'posisi_denah',
         'foto_url',
     ];
 
@@ -31,7 +31,7 @@ class Room extends Model
         return [
             'kapasitas' => 'integer',
             'lantai' => 'integer',
-            'luas_m2' => 'integer',
+            'posisi_denah' => 'integer',
         ];
     }
 
@@ -48,5 +48,13 @@ class Room extends Model
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
+    }
+
+    public function getLokasiLengkapAttribute(): string
+    {
+        $lokasi = trim((string) $this->lokasi);
+
+        return 'Lantai ' . $this->lantai . ' · ' . $this->gedung
+            . ($lokasi !== '' ? ' · ' . $lokasi : '');
     }
 }

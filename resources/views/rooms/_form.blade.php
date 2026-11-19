@@ -40,20 +40,25 @@
 
 <div class="field">
 <label for="gedung">Gedung</label>
-<input class="input" type="text" name="gedung" id="gedung" value="{{ old('gedung', $room->gedung ?? '') }}">
+<input class="input" type="text" name="gedung" id="gedung" required value="{{ old('gedung', $room->gedung ?? 'Gedung A') }}">
 @error('gedung') <div class="error">{{ $message }}</div> @enderror
 </div>
 
 <div class="field">
 <label for="lantai">Lantai</label>
-<input class="input" type="number" min="1" max="20" name="lantai" id="lantai" value="{{ old('lantai', $room->lantai ?? '') }}">
+<input class="input" type="number" min="1" max="20" name="lantai" id="lantai" required value="{{ old('lantai', $room->lantai ?? 1) }}">
 @error('lantai') <div class="error">{{ $message }}</div> @enderror
 </div>
 
 <div class="field">
-<label for="luas_m2">Luas (m²)</label>
-<input class="input" type="number" min="1" name="luas_m2" id="luas_m2" value="{{ old('luas_m2', $room->luas_m2 ?? '') }}">
-@error('luas_m2') <div class="error">{{ $message }}</div> @enderror
+<label for="posisi_denah">Posisi Denah</label>
+<select class="select" name="posisi_denah" id="posisi_denah">
+    <option value="">Otomatis</option>
+    @foreach ([1, 2, 3, 4] as $slot)
+        <option value="{{ $slot }}" @selected((string) old('posisi_denah', $room->posisi_denah ?? '') === (string) $slot)>Slot {{ $slot }}</option>
+    @endforeach
+</select>
+@error('posisi_denah') <div class="error">{{ $message }}</div> @enderror
 </div>
 
 <div class="field">
