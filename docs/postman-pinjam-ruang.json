@@ -1,0 +1,565 @@
+{
+  "info": {
+    "name": "Pinjam-Ruang API",
+    "description": "Collection API backend sistem peminjaman ruang kampus.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8011"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "today",
+      "value": "2026-11-19"
+    }
+  ],
+  "item": [
+    {
+      "name": "Autentikasi",
+      "item": [
+        {
+          "name": "Login Peminjam 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"peminjam1@kampus.ac.id\",\n  \"password\": \"password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.token) {",
+                  "  pm.collectionVariables.set('token', body.token);",
+                  "}",
+                  "pm.collectionVariables.set('today', new Date().toISOString().slice(0, 10));",
+                  "pm.test('Login berhasil', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Kategori Ruang",
+      "item": [
+        {
+          "name": "Daftar Kategori Ruang",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/room-categories"
+          }
+        },
+        {
+          "name": "Detail Kategori Ruang",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/room-categories/1"
+          }
+        },
+        {
+          "name": "Tambah Kategori Ruang",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Ruang Seminar\",\n  \"deskripsi\": \"Ruang untuk seminar dan presentasi\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/room-categories"
+          }
+        },
+        {
+          "name": "Ubah Kategori Ruang",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Ruang Kelas\",\n  \"deskripsi\": \"Ruang untuk perkuliahan\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/room-categories/1"
+          }
+        },
+        {
+          "name": "Hapus Kategori Ruang",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/room-categories/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ruang",
+      "item": [
+        {
+          "name": "Daftar Ruang dengan Filter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/rooms?kategori=&status=tersedia&kapasitas_min=20&search=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "rooms"
+              ],
+              "query": [
+                {
+                  "key": "kategori",
+                  "value": ""
+                },
+                {
+                  "key": "status",
+                  "value": "tersedia"
+                },
+                {
+                  "key": "kapasitas_min",
+                  "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detail Ruang",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/rooms/1"
+          }
+        },
+        {
+          "name": "Tambah Ruang",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room_category_id\": 1,\n  \"kode\": \"RK-UJI\",\n  \"nama\": \"Ruang Uji\",\n  \"kapasitas\": 30,\n  \"lokasi\": \"Gedung Uji\",\n  \"fasilitas\": \"Proyektor, AC\",\n  \"deskripsi\": \"Ruang untuk pengujian API\",\n  \"status\": \"tersedia\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/rooms"
+          }
+        },
+        {
+          "name": "Ubah Ruang",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room_category_id\": 1,\n  \"kode\": \"RK-101\",\n  \"nama\": \"Ruang Kelas 101\",\n  \"kapasitas\": 40,\n  \"lokasi\": \"Gedung A Lantai 1\",\n  \"fasilitas\": \"Proyektor, AC, papan tulis\",\n  \"deskripsi\": \"Ruang perkuliahan\",\n  \"status\": \"tersedia\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/rooms/1"
+          }
+        },
+        {
+          "name": "Hapus Ruang",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/rooms/1"
+          }
+        },
+        {
+          "name": "Cek Ketersediaan Ruang",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/rooms/1/availability?tanggal={{today}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Peminjaman",
+      "item": [
+        {
+          "name": "Daftar Peminjaman",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/bookings"
+          }
+        },
+        {
+          "name": "Ajukan Peminjaman",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room_id\": 2,\n  \"tanggal\": \"{{today}}\",\n  \"jam_mulai\": \"11:00\",\n  \"jam_selesai\": \"12:00\",\n  \"keperluan\": \"Pengujian pengajuan sukses\",\n  \"jumlah_peserta\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/bookings"
+          }
+        },
+        {
+          "name": "Detail Peminjaman",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/bookings/1"
+          }
+        },
+        {
+          "name": "Ubah Status Peminjaman",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"disetujui\",\n  \"catatan_admin\": \"Pengajuan disetujui\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/bookings/1/status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Skenario Uji",
+      "item": [
+        {
+          "name": "(a) Pengajuan Sukses",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room_id\": 2,\n  \"tanggal\": \"{{today}}\",\n  \"jam_mulai\": \"11:00\",\n  \"jam_selesai\": \"12:00\",\n  \"keperluan\": \"Skenario pengajuan sukses\",\n  \"jumlah_peserta\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/bookings"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Pengajuan harus diterima', function () {",
+                  "  pm.expect([201, 422]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "(b) Pengajuan Bentrok Ditolak",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room_id\": 1,\n  \"tanggal\": \"{{today}}\",\n  \"jam_mulai\": \"09:00\",\n  \"jam_selesai\": \"10:30\",\n  \"keperluan\": \"Skenario jadwal bentrok\",\n  \"jumlah_peserta\": 20\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/bookings"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Bentrok harus ditolak', function () {",
+                  "  pm.response.to.have.status(422);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "(c) Akses Data Peminjam Lain Ditolak",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/bookings/2"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Akses lintas peminjam ditolak', function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

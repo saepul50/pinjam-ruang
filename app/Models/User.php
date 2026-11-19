@@ -26,6 +26,7 @@ class User extends Authenticatable
         'nim_nip',
         'no_hp',
         'organisasi',
+        'remember_token',
     ];
 
     /**

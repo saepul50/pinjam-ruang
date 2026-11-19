@@ -52,12 +52,15 @@ class BookingController extends Controller
             ])->withInput();
         }
 
-        $berbenturan = Booking::where('room_id', $room->id)
-            ->where('tanggal', $validated['tanggal'])
+        $jadwalAktif = Booking::where('room_id', $room->id)
             ->whereIn('status', ['menunggu', 'disetujui'])
-            ->where('jam_mulai', '<', $validated['jam_selesai'])
-            ->where('jam_selesai', '>', $validated['jam_mulai'])
-            ->exists();
+            ->get(['tanggal', 'jam_mulai', 'jam_selesai'])
+            ->filter(fn (Booking $booking) => $booking->tanggal->toDateString() === $validated['tanggal']);
+
+        $berbenturan = $jadwalAktif->contains(function (Booking $booking) use ($validated) {
+            return $validated['jam_mulai'] < $booking->jam_selesai
+                && $validated['jam_selesai'] > $booking->jam_mulai;
+        });
 
         if ($berbenturan) {
             return back()->withErrors([
