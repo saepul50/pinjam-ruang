@@ -21,7 +21,19 @@ class ApiBookingTest extends TestCase
         $this->actingAs($peminjam)
             ->get('/dashboard')
             ->assertOk()
-            ->assertSee('Jelajahi Ruang');
+            ->assertSee('Jelajahi Ruang')
+            ->assertDontSee('>Dashboard</a>', false);
+    }
+
+    public function test_petugas_dashboard_has_dashboard_menu(): void
+    {
+        $petugas = $this->createUser('petugas', 'petugas-navbar@kampus.ac.id');
+
+        $this->actingAs($petugas)
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertSee('Dashboard')
+            ->assertDontSee('Jelajahi Ruang');
     }
 
     public function test_petugas_cannot_open_booking_form(): void

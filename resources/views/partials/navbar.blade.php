@@ -7,13 +7,13 @@
     @auth
         <button type="button" class="menu-toggle" aria-label="Buka menu" aria-expanded="false">☰</button>
         <nav class="nav" aria-label="Navigasi utama">
-            <a class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">Dashboard</a>
             @if (auth()->user()->role === 'peminjam')
                 <a class="{{ request()->routeIs('dashboard') || request()->routeIs('rooms.index') ? 'active' : '' }}" href="{{ route('dashboard') }}">Jelajahi Ruang</a>
                 <a class="{{ request()->routeIs('rooms.list') ? 'active' : '' }}" href="{{ route('rooms.list') }}">Daftar Ruang</a>
                 <a class="{{ request()->routeIs('booking.guide') ? 'active' : '' }}" href="{{ route('booking.guide') }}">Cara Booking</a>
                 <a class="{{ request()->routeIs('bookings.*') ? 'active' : '' }}" href="{{ route('bookings.index') }}">Peminjaman Saya</a>
             @else
+                <a class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">Dashboard</a>
                 <a class="{{ request()->routeIs('rooms.*') ? 'active' : '' }}" href="{{ route('rooms.index') }}">Ruang</a>
                 <a class="{{ request()->routeIs('bookings.*') ? 'active' : '' }}" href="{{ route('bookings.index') }}">Peminjaman</a>
             @endif
