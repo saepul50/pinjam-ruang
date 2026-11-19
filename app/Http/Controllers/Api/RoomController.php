@@ -131,6 +131,10 @@ class RoomController extends Controller
             'fasilitas' => 'nullable|string',
             'deskripsi' => 'nullable|string',
             'status' => 'required|in:tersedia,perbaikan,nonaktif',
+            'gedung' => 'nullable|string|max:100',
+            'lantai' => 'nullable|integer|min:1|max:20',
+            'luas_m2' => 'nullable|integer|min:1',
+            'foto_url' => 'nullable|url:http,https|max:255',
         ], [
             'room_category_id.required' => 'Kategori ruang wajib dipilih.',
             'kode.required' => 'Kode ruang wajib diisi.',

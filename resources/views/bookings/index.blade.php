@@ -3,25 +3,32 @@
 @section('title', 'Peminjaman')
 
 @section('content')
-    <h1>Peminjaman</h1>
+    @include('partials.page-header', [
+        'eyebrow' => 'Pengajuan Ruang',
+        'title' => 'Peminjaman',
+        'subtitle' => in_array(auth()->user()->role, ['admin', 'petugas'], true)
+            ? 'Kelola seluruh pengajuan peminjaman ruang.'
+            : 'Pantau pengajuan peminjaman milik Anda.',
+    ])
     <p><a href="{{ route('bookings.create') }}" class="btn btn-primary">+ Ajukan Peminjaman</a></p>
 
     @if (in_array(auth()->user()->role, ['admin', 'petugas'], true))
-        <form method="GET" action="{{ route('bookings.index') }}">
-            <label for="status">Filter Status</label>
-            <select name="status" id="status">
-                <option value="">Semua</option>
-                @foreach (['menunggu', 'disetujui', 'ditolak', 'dibatalkan', 'selesai'] as $status)
-                    <option value="{{ $status }}" @selected(request('status') === $status)>
-                        {{ ucfirst($status) }}
-                    </option>
-                @endforeach
-            </select>
+        <form class="searchbar" method="GET" action="{{ route('bookings.index') }}">
+            <div class="searchfield">
+                <label for="status">Filter Status</label>
+                <select name="status" id="status">
+                    <option value="">Semua</option>
+                    @foreach (['menunggu', 'disetujui', 'ditolak', 'dibatalkan', 'selesai'] as $status)
+                        <option value="{{ $status }}" @selected(request('status') === $status)>{{ ucfirst($status) }}</option>
+                    @endforeach
+                </select>
+            </div>
             <button type="submit" class="btn btn-primary">Tampilkan</button>
         </form>
     @endif
 
-    <table>
+    <div class="card table-wrap">
+    <table class="table">
         <thead>
             <tr>
                 @if (in_array(auth()->user()->role, ['admin', 'petugas'], true))
@@ -45,14 +52,15 @@
                     <td>{{ $booking->tanggal->format('d-m-Y') }}</td>
                     <td>{{ $booking->jam_mulai }} - {{ $booking->jam_selesai }}</td>
                     <td>{{ $booking->keperluan }}</td>
-                    <td><span class="badge badge-{{ $booking->status }}">{{ ucfirst($booking->status) }}</span></td>
-                    <td><a class="btn btn-primary" href="{{ route('bookings.show', $booking) }}">Detail</a></td>
+                    <td>@include('partials.status-badge', ['status' => $booking->status])</td>
+                    <td><a class="btn btn-sm btn-secondary" href="{{ route('bookings.show', $booking) }}">Detail</a></td>
                 </tr>
             @empty
                 <tr><td colspan="7">Belum ada peminjaman.</td></tr>
             @endforelse
         </tbody>
     </table>
+    </div>
 
     {{ $bookings->links() }}
 @endsection

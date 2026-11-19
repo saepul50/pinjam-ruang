@@ -3,34 +3,21 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    <h1>Dashboard</h1>
+    @include('partials.page-header', [
+        'eyebrow' => 'Ringkasan',
+        'title' => 'Dashboard',
+        'subtitle' => 'Ringkasan peminjaman ruang kampus.',
+    ])
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="value">{{ $totalRuang }}</div>
-            <div class="label">Total Ruang</div>
-        </div>
+    <div class="stats">
+        @include('partials.stat-card', ['label' => 'Total Ruang', 'value' => $totalRuang])
 
         @if (in_array(auth()->user()->role, ['admin', 'petugas'], true))
-            <div class="stat-card">
-                <div class="value">{{ $peminjamanMenunggu }}</div>
-                <div class="label">Peminjaman Menunggu</div>
-            </div>
-            <div class="stat-card">
-                <div class="value">{{ $peminjamanHariIni }}</div>
-                <div class="label">Peminjaman Hari Ini</div>
-            </div>
+            @include('partials.stat-card', ['label' => 'Peminjaman Menunggu', 'value' => $peminjamanMenunggu])
+            @include('partials.stat-card', ['label' => 'Peminjaman Hari Ini', 'value' => $peminjamanHariIni])
         @else
-            <div class="stat-card">
-                <div class="value">{{ $jumlahPeminjamanSaya }}</div>
-                <div class="label">Peminjaman Saya</div>
-            </div>
-            <div class="stat-card">
-                <div class="value">
-                    {{ $peminjamanTerdekat ? $peminjamanTerdekat->tanggal->format('d-m-Y') : '-' }}
-                </div>
-                <div class="label">Peminjaman Terdekat</div>
-            </div>
+            @include('partials.stat-card', ['label' => 'Peminjaman Saya', 'value' => $jumlahPeminjamanSaya])
+            @include('partials.stat-card', ['label' => 'Peminjaman Terdekat', 'value' => $peminjamanTerdekat ? $peminjamanTerdekat->tanggal->format('d-m-Y') : '-'])
         @endif
     </div>
 @endsection

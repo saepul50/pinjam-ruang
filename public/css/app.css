@@ -486,6 +486,12 @@ a { color: var(--blue); }
     margin-bottom: 16px;
 }
 
+.error-page-card {
+    max-width: 520px;
+    margin: 80px auto;
+    text-align: center;
+}
+
 footer {
     text-align: center;
     color: var(--muted);

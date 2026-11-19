@@ -20,12 +20,18 @@ class Room extends Model
         'fasilitas',
         'deskripsi',
         'status',
+        'gedung',
+        'lantai',
+        'luas_m2',
+        'foto_url',
     ];
 
     protected function casts(): array
     {
         return [
             'kapasitas' => 'integer',
+            'lantai' => 'integer',
+            'luas_m2' => 'integer',
         ];
     }
 
