@@ -10,11 +10,17 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Semua akun uji menggunakan password: password
+        /*
+        Akun uji (password semua: password):
+        admin@pinjamruang.test    | Admin Sistem       | admin
+        petugas@pinjamruang.test  | Petugas Ruang      | petugas
+        budi@pinjamruang.test     | Budi Santoso       | peminjam
+        sari@pinjamruang.test     | Sari Wulandari     | peminjam
+        */
         User::updateOrCreate(
-            ['email' => 'admin@kampus.ac.id'],
+            ['email' => 'admin@pinjamruang.test'],
             [
-                'name' => 'Administrator',
+                'name' => 'Admin Sistem',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
                 'nim_nip' => 'ADM-001',
@@ -23,7 +29,7 @@ class UserSeeder extends Seeder
         );
 
         User::updateOrCreate(
-            ['email' => 'petugas@kampus.ac.id'],
+            ['email' => 'petugas@pinjamruang.test'],
             [
                 'name' => 'Petugas Ruang',
                 'password' => Hash::make('password'),
@@ -34,9 +40,9 @@ class UserSeeder extends Seeder
         );
 
         User::updateOrCreate(
-            ['email' => 'peminjam1@kampus.ac.id'],
+            ['email' => 'budi@pinjamruang.test'],
             [
-                'name' => 'Peminjam Satu',
+                'name' => 'Budi Santoso',
                 'password' => Hash::make('password'),
                 'role' => 'peminjam',
                 'nim_nip' => '232410001',
@@ -46,9 +52,9 @@ class UserSeeder extends Seeder
         );
 
         User::updateOrCreate(
-            ['email' => 'peminjam2@kampus.ac.id'],
+            ['email' => 'sari@pinjamruang.test'],
             [
-                'name' => 'Peminjam Dua',
+                'name' => 'Sari Wulandari',
                 'password' => Hash::make('password'),
                 'role' => 'peminjam',
                 'nim_nip' => '232410002',

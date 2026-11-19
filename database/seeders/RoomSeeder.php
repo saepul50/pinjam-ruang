@@ -18,18 +18,19 @@ class RoomSeeder extends Seeder
         ])->get()->keyBy('nama');
 
         $rooms = [
-            ['kelas', 'RK-101', 'Ruang Kelas 101', 40, 'Gedung A Lantai 1', 'tersedia', 'Ruang Kelas'],
-            ['kelas', 'RK-102', 'Ruang Kelas 102', 35, 'Gedung A Lantai 1', 'tersedia', 'Ruang Kelas'],
-            ['lab', 'LAB-101', 'Laboratorium Komputer 1', 30, 'Gedung B Lantai 2', 'tersedia', 'Laboratorium'],
-            ['lab', 'LAB-201', 'Laboratorium Komputer 2', 25, 'Gedung B Lantai 2', 'perbaikan', 'Laboratorium'],
-            ['lab', 'LAB-FIS', 'Laboratorium Fisika', 20, 'Gedung C Lantai 1', 'tersedia', 'Laboratorium'],
-            ['aula', 'AULA-UTAMA', 'Aula Utama', 200, 'Gedung Serbaguna', 'tersedia', 'Aula'],
-            ['rapat', 'RR-301', 'Ruang Rapat 301', 16, 'Gedung A Lantai 3', 'tersedia', 'Ruang Rapat'],
-            ['rapat', 'RR-302', 'Ruang Rapat 302', 12, 'Gedung A Lantai 3', 'nonaktif', 'Ruang Rapat'],
-            ['kelas', 'RK-201', 'Ruang Kelas 201', 45, 'Gedung A Lantai 2', 'tersedia', 'Ruang Kelas'],
+            ['RK-101', 'Ruang Kelas 101', 40, 'Gedung A Lt.1', 'tersedia', 'Ruang Kelas'],
+            ['RK-102', 'Ruang Kelas 102', 40, 'Gedung A Lt.1', 'tersedia', 'Ruang Kelas'],
+            ['RK-201', 'Ruang Kelas 201', 30, 'Gedung A Lt.2', 'tersedia', 'Ruang Kelas'],
+            ['LAB-01', 'Lab Komputer 1', 35, 'Gedung B Lt.1', 'tersedia', 'Laboratorium'],
+            ['LAB-02', 'Lab Jaringan', 25, 'Gedung B Lt.2', 'tersedia', 'Laboratorium'],
+            ['LAB-03', 'Lab Multimedia', 25, 'Gedung B Lt.2', 'perbaikan', 'Laboratorium'],
+            ['AUL-01', 'Aula Utama', 200, 'Gedung C', 'tersedia', 'Aula'],
+            ['AUL-02', 'Aula Mini', 80, 'Gedung C', 'tersedia', 'Aula'],
+            ['RR-01', 'Ruang Rapat Dosen', 15, 'Gedung A Lt.3', 'tersedia', 'Ruang Rapat'],
+            ['RR-02', 'Ruang Rapat Organisasi', 20, 'Gedung D', 'nonaktif', 'Ruang Rapat'],
         ];
 
-        foreach ($rooms as [$slug, $kode, $nama, $kapasitas, $lokasi, $status, $kategori]) {
+        foreach ($rooms as [$kode, $nama, $kapasitas, $lokasi, $status, $kategori]) {
             Room::updateOrCreate(
                 ['kode' => $kode],
                 [
