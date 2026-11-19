@@ -14,6 +14,25 @@ class ApiBookingTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_peminjam_dashboard_has_explore_menu(): void
+    {
+        $peminjam = $this->createUser('peminjam');
+
+        $this->actingAs($peminjam)
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertSee('Jelajahi Ruang');
+    }
+
+    public function test_petugas_cannot_open_booking_form(): void
+    {
+        $petugas = $this->createUser('petugas', 'petugas-web@kampus.ac.id');
+
+        $this->actingAs($petugas)
+            ->get('/bookings/create')
+            ->assertForbidden();
+    }
+
     public function test_booking_requires_authentication(): void
     {
         $this->getJson('/api/bookings')
@@ -47,6 +66,26 @@ class ApiBookingTest extends TestCase
             'jumlah_peserta' => 10,
         ])->assertCreated()
             ->assertJsonPath('data.status', 'menunggu');
+    }
+
+    public function test_petugas_cannot_create_booking(): void
+    {
+        $petugas = $this->createUser('petugas', 'petugas-uji@kampus.ac.id');
+        $room = $this->createRoom();
+
+        $login = $this->postJson('/api/login', [
+            'email' => $petugas->email,
+            'password' => 'password',
+        ]);
+
+        $this->withToken($login->json('token'))->postJson('/api/bookings', [
+            'room_id' => $room->id,
+            'tanggal' => now()->toDateString(),
+            'jam_mulai' => '11:00',
+            'jam_selesai' => '12:00',
+            'keperluan' => 'Pengajuan oleh petugas',
+            'jumlah_peserta' => 10,
+        ])->assertForbidden();
     }
 
     public function test_overlapping_booking_is_rejected(): void
@@ -109,12 +148,15 @@ class ApiBookingTest extends TestCase
 
     private function createUser(string $role, ?string $email = null): User
     {
-        return User::create([
+        $user = new User([
             'name' => 'Pengguna Uji',
             'email' => $email ?? 'peminjam@kampus.ac.id',
             'password' => Hash::make('password'),
-            'role' => $role,
         ]);
+        $user->role = $role;
+        $user->save();
+
+        return $user;
     }
 
     private function createRoom(): Room

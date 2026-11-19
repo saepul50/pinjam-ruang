@@ -8,8 +8,13 @@
         <button type="button" class="menu-toggle" aria-label="Buka menu" aria-expanded="false">☰</button>
         <nav class="nav" aria-label="Navigasi utama">
             <a class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">Dashboard</a>
-            <a class="{{ request()->routeIs('rooms.*') ? 'active' : '' }}" href="{{ route('rooms.index') }}">Ruang</a>
-            <a class="{{ request()->routeIs('bookings.*') ? 'active' : '' }}" href="{{ route('bookings.index') }}">Peminjaman</a>
+            @if (auth()->user()->role === 'peminjam')
+                <a class="{{ request()->routeIs('rooms.*') ? 'active' : '' }}" href="{{ route('rooms.index') }}">Jelajahi Ruang</a>
+                <a class="{{ request()->routeIs('bookings.*') ? 'active' : '' }}" href="{{ route('bookings.index') }}">Peminjaman Saya</a>
+            @else
+                <a class="{{ request()->routeIs('rooms.*') ? 'active' : '' }}" href="{{ route('rooms.index') }}">Ruang</a>
+                <a class="{{ request()->routeIs('bookings.*') ? 'active' : '' }}" href="{{ route('bookings.index') }}">Peminjaman</a>
+            @endif
             @if (auth()->user()->role === 'admin')
                 <a class="{{ request()->routeIs('room-categories.*') ? 'active' : '' }}" href="{{ route('room-categories.index') }}">Kategori Ruang</a>
             @endif

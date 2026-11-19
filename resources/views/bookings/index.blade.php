@@ -10,7 +10,9 @@
             ? 'Kelola seluruh pengajuan peminjaman ruang.'
             : 'Pantau pengajuan peminjaman milik Anda.',
     ])
-    <p><a href="{{ route('bookings.create') }}" class="btn btn-primary">+ Ajukan Peminjaman</a></p>
+    @if (auth()->user()->role === 'peminjam')
+        <p><a href="{{ route('bookings.create') }}" class="btn btn-primary">+ Ajukan Peminjaman</a></p>
+    @endif
 
     @if (in_array(auth()->user()->role, ['admin', 'petugas'], true))
         <form class="searchbar" method="GET" action="{{ route('bookings.index') }}">

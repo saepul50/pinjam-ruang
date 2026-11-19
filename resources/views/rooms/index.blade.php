@@ -5,7 +5,7 @@
 @section('content')
     @include('partials.page-header', [
         'eyebrow' => 'Pencarian Ruang',
-        'title' => 'Temukan ruang kampus',
+        'title' => auth()->user()->role === 'peminjam' ? 'Jelajahi Ruang Kampus' : 'Temukan ruang kampus',
         'subtitle' => 'Cari ruang yang tersedia sesuai kategori, kapasitas, dan lokasi.',
     ])
 

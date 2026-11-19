@@ -68,7 +68,7 @@
                     @endforelse
                 </div>
 
-                @if ($room->status === 'tersedia')
+                @if ($room->status === 'tersedia' && auth()->user()->role === 'peminjam')
                     <p><a href="{{ route('bookings.create') }}?room_id={{ $room->id }}" class="btn btn-primary btn-full">Ajukan Peminjaman →</a></p>
                 @endif
             </div>

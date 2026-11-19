@@ -20,4 +20,12 @@
             @include('partials.stat-card', ['label' => 'Peminjaman Terdekat', 'value' => $peminjamanTerdekat ? $peminjamanTerdekat->tanggal->format('d-m-Y') : '-'])
         @endif
     </div>
+
+    @if (auth()->user()->role === 'peminjam')
+        <section class="card dashboard-action-card">
+            <h2>Jelajahi Ruang</h2>
+            <p class="page-intro">Cari ruang berdasarkan gedung, lantai, kapasitas, dan fasilitas.</p>
+            <a class="btn btn-primary" href="{{ route('rooms.index') }}">Jelajahi Ruang →</a>
+        </section>
+    @endif
 @endsection

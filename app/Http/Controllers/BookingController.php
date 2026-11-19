@@ -30,6 +30,8 @@ class BookingController extends Controller
 
     public function create()
     {
+        abort_unless(auth()->user()->role === 'peminjam', 403);
+
         return view('bookings.create', [
             'rooms' => Room::where('status', 'tersedia')->orderBy('nama')->get(),
         ]);
@@ -37,6 +39,8 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
+        abort_unless(auth()->user()->role === 'peminjam', 403);
+
         $validated = $request->validate([
             'room_id' => 'required|integer|exists:rooms,id',
             'tanggal' => 'required|date|after_or_equal:today',
