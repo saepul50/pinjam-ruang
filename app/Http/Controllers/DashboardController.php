@@ -26,6 +26,14 @@ class DashboardController extends Controller
                 ->orderBy('tanggal')
                 ->orderBy('jam_mulai')
                 ->first();
+            $data['gedungs'] = Room::whereNotNull('gedung')->distinct()->orderBy('gedung')->pluck('gedung');
+            $data['gedungAktif'] = Room::whereNotNull('gedung')->value('gedung');
+            $data['lantaiAktif'] = 1;
+            $data['ruangDenah'] = Room::with('roomCategory')
+                ->where('gedung', $data['gedungAktif'])
+                ->where('lantai', 1)
+                ->orderBy('nama')
+                ->get();
         }
 
         return view('dashboard', $data);

@@ -10,21 +10,16 @@ class RoomController extends Controller
 {
     public function index(Request $request)
     {
+        if (auth()->user()->role === 'peminjam') {
+            return $this->explore($request);
+        }
+
+        return $this->list($request);
+    }
+
+    public function list(Request $request)
+    {
         $rooms = Room::with('roomCategory');
-
-        $gedung = $request->filled('gedung')
-            ? $request->string('gedung')->toString()
-            : Room::whereNotNull('gedung')->value('gedung');
-        $lantai = $request->filled('lantai')
-            ? $request->integer('lantai')
-            : 1;
-
-        if ($gedung) {
-            $rooms->where('gedung', $gedung);
-        }
-        if ($lantai) {
-            $rooms->where('lantai', $lantai);
-        }
         if ($request->filled('kategori')) {
             $rooms->where('room_category_id', $request->integer('kategori'));
         }
@@ -46,10 +41,29 @@ class RoomController extends Controller
         return view('rooms.index', [
             'rooms' => $rooms->latest()->paginate(10)->withQueryString(),
             'categories' => RoomCategory::orderBy('nama')->get(),
+        ]);
+    }
+
+    private function explore(Request $request)
+    {
+        $gedung = $request->filled('gedung')
+            ? $request->string('gedung')->toString()
+            : Room::whereNotNull('gedung')->value('gedung');
+        $lantai = $request->filled('lantai')
+            ? $request->integer('lantai')
+            : 1;
+
+        $ruangDenah = Room::with('roomCategory')
+            ->where('gedung', $gedung)
+            ->where('lantai', $lantai)
+            ->orderBy('nama')
+            ->get();
+
+        return view('rooms.explore', [
             'gedungs' => Room::whereNotNull('gedung')->distinct()->orderBy('gedung')->pluck('gedung'),
             'gedungAktif' => $gedung,
             'lantaiAktif' => $lantai,
-            'ruangDenah' => (clone $rooms)->orderBy('nama')->get(),
+            'ruangDenah' => $ruangDenah,
         ]);
     }
 

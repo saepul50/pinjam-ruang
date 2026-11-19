@@ -10,6 +10,11 @@ use Illuminate\Validation\ValidationException;
 
 class BookingController extends Controller
 {
+    public function guide()
+    {
+        return view('bookings.guide');
+    }
+
     public function index(Request $request)
     {
         $user = auth()->user();

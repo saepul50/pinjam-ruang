@@ -22,6 +22,8 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/bookings/{id}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
 
     Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
+    Route::get('/rooms/list', [RoomController::class, 'list'])->name('rooms.list');
+    Route::get('/cara-booking', [BookingController::class, 'guide'])->name('booking.guide');
     Route::get('/rooms/{id}', [RoomController::class, 'show'])->name('rooms.show');
 
     Route::middleware(['staff'])->group(function () {
