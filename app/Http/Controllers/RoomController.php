@@ -51,20 +51,32 @@ class RoomController extends Controller
         $gedung = $request->filled('gedung')
             ? $request->string('gedung')->toString()
             : Room::whereNotNull('gedung')->value('gedung');
+
+        $lantaiList = Room::where('gedung', $gedung)
+            ->whereNotNull('lantai')
+            ->distinct()
+            ->orderBy('lantai')
+            ->pluck('lantai');
+
         $lantai = $request->filled('lantai')
             ? $request->integer('lantai')
-            : 1;
+            : ($lantaiList->first() ? (int) $lantaiList->first() : 1);
+
+        if (! $lantaiList->contains($lantai)) {
+            $lantai = (int) $lantaiList->first();
+        }
 
         $ruangDenah = Room::with('roomCategory')
             ->where('gedung', $gedung)
             ->where('lantai', $lantai)
-            ->orderBy('nama')
+            ->orderBy('posisi_denah')
             ->get();
 
         return view('rooms.explore', [
             'gedungs' => Room::whereNotNull('gedung')->distinct()->orderBy('gedung')->pluck('gedung'),
             'gedungAktif' => $gedung,
             'lantaiAktif' => $lantai,
+            'lantaiList' => $lantaiList,
             'ruangDenah' => $ruangDenah,
         ]);
     }

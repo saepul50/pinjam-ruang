@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Room;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
         $data = [
@@ -27,12 +28,24 @@ class DashboardController extends Controller
                 ->orderBy('jam_mulai')
                 ->first();
             $data['gedungs'] = Room::whereNotNull('gedung')->distinct()->orderBy('gedung')->pluck('gedung');
-            $data['gedungAktif'] = Room::whereNotNull('gedung')->value('gedung');
-            $data['lantaiAktif'] = 1;
+            $data['gedungAktif'] = $request->filled('gedung')
+                ? $request->string('gedung')->toString()
+                : (Room::whereNotNull('gedung')->distinct()->orderBy('gedung')->value('gedung') ?? 'Gedung A');
+            $data['lantaiList'] = Room::where('gedung', $data['gedungAktif'])
+                ->whereNotNull('lantai')
+                ->distinct()
+                ->orderBy('lantai')
+                ->pluck('lantai');
+            $data['lantaiAktif'] = $request->filled('lantai')
+                ? $request->integer('lantai')
+                : ((int) ($data['lantaiList']->first() ?? 1));
+            if (! $data['lantaiList']->contains($data['lantaiAktif'])) {
+                $data['lantaiAktif'] = (int) ($data['lantaiList']->first() ?? 1);
+            }
             $data['ruangDenah'] = Room::with('roomCategory')
                 ->where('gedung', $data['gedungAktif'])
-                ->where('lantai', 1)
-                ->orderBy('nama')
+                ->where('lantai', $data['lantaiAktif'])
+                ->orderBy('posisi_denah')
                 ->get();
         }
 

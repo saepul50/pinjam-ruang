@@ -10,7 +10,7 @@
             'subtitle' => 'Jelajahi gedung, pilih lantai, dan temukan ruangan kampus yang tersedia.',
         ])
 
-        <form class="searchbar" method="GET" action="{{ route('rooms.index') }}">
+        <form class="searchbar" method="GET" action="{{ route('dashboard') }}">
             <div class="searchfield">
                 <label for="gedung">Gedung</label>
                 <select name="gedung" id="gedung">
@@ -26,7 +26,7 @@
             <div class="searchfield">
                 <label for="lantai">Lantai</label>
                 <select name="lantai" id="lantai">
-                    @foreach ([1, 2, 3] as $lantai)
+                    @foreach ($lantaiList as $lantai)
                         <option value="{{ $lantai }}" @selected($lantaiAktif === $lantai)>Lantai {{ $lantai }}</option>
                     @endforeach
                 </select>
@@ -34,7 +34,7 @@
             <button type="submit" class="btn btn-primary">Cari Ruangan →</button>
         </form>
 
-        @include('partials.explore-workspace')
+        @include('partials.explore-workspace', ['floorRoute' => 'dashboard'])
     @else
         @include('partials.page-header', [
             'eyebrow' => 'Ringkasan',

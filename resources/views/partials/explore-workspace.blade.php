@@ -14,9 +14,9 @@
                     <small>Jl. Kampus Raya · Area Akademik</small>
                 </div>
                 <div class="floor-switch">
-                    @foreach ([1, 2, 3] as $lantai)
+                    @foreach ($lantaiList as $lantai)
                         <a class="{{ $lantaiAktif === $lantai ? 'active' : '' }}"
-                           href="{{ route('rooms.index', ['gedung' => $gedungAktif, 'lantai' => $lantai]) }}">
+                           href="{{ route($floorRoute, ['gedung' => $gedungAktif, 'lantai' => $lantai]) }}">
                             Lantai {{ $lantai }}
                         </a>
                     @endforeach
@@ -43,7 +43,7 @@
                             <div class="room-cell {{ $selected ? 'selected' : '' }} {{ in_array($room->status, ['perbaikan', 'nonaktif']) ? 'is-unavailable' : '' }}">
                                 <span class="room-name">{{ $room->nama }}</span>
                                 <a class="roompin"
-                                   href="{{ route('rooms.index', ['gedung' => $gedungAktif, 'lantai' => $lantaiAktif, 'room_id' => $room->id]) }}"
+                                   href="{{ route($floorRoute, ['gedung' => $gedungAktif, 'lantai' => $lantaiAktif, 'room_id' => $room->id]) }}"
                                    aria-label="Pilih {{ $room->nama }}">
                                     <span>{{ $room->kode }}</span>
                                 </a>

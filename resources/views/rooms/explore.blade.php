@@ -21,7 +21,7 @@
         <div class="searchfield">
             <label for="lantai">Lantai</label>
             <select name="lantai" id="lantai">
-                @foreach ([1, 2, 3] as $lantai)
+                @foreach ($lantaiList as $lantai)
                     <option value="{{ $lantai }}" @selected($lantaiAktif === $lantai)>Lantai {{ $lantai }}</option>
                 @endforeach
             </select>
@@ -29,5 +29,5 @@
         <button type="submit" class="btn btn-primary">Tampilkan Denah →</button>
     </form>
 
-    @include('partials.explore-workspace')
+    @include('partials.explore-workspace', ['floorRoute' => 'rooms.index'])
 @endsection
