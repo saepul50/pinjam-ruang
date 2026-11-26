@@ -54,7 +54,7 @@
 <label for="posisi_denah">Posisi Denah</label>
 <select class="select" name="posisi_denah" id="posisi_denah">
     <option value="">Otomatis</option>
-    @foreach ([1, 2, 3, 4] as $slot)
+    @foreach (range(1, 7) as $slot)
         <option value="{{ $slot }}" @selected((string) old('posisi_denah', $room->posisi_denah ?? '') === (string) $slot)>Slot {{ $slot }}</option>
     @endforeach
 </select>

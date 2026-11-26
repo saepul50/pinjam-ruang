@@ -1,15 +1,15 @@
 <article class="roomtile">
     @if (! empty($room->foto_url))
-        <div class="detailimage"><img src="{{ $room->foto_url }}" alt="{{ $room->nama }}"></div>
+        <img src="{{ $room->foto_url }}" alt="{{ $room->nama }}">
     @else
         <div class="roomtile-placeholder" aria-label="Foto ruang belum tersedia">⌂</div>
     @endif
-    <div class="roomtile-body">
+    <div class="tilebody">
         <strong>{{ $room->nama }}</strong>
-        <div class="roomtile-meta">{{ $room->kode }} · {{ $room->kapasitas }} orang · Lantai {{ $room->lantai }}</div>
-        <div class="roomtile-foot">
+        <span>{{ $room->kode }} · {{ $room->kapasitas }} orang</span>
+        <div class="tilefoot">
             @include('partials.status-badge', ['status' => $room->status])
-            <a class="btn btn-sm btn-secondary" href="{{ route('rooms.show', $room) }}">Lihat →</a>
+            <a href="{{ route('rooms.show', $room) }}" style="font-size:11px;color:#4169e1;font-weight:700">Lihat →</a>
         </div>
     </div>
 </article>

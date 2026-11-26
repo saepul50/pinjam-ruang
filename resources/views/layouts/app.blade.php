@@ -10,16 +10,20 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
 <body>
-    @include('partials.navbar')
+    <div class="app-shell">
+        @include('partials.navbar')
 
-    <main class="container">
-        @include('partials.alert')
-        @yield('content')
-    </main>
+        <div class="app-main">
+            <main class="container">
+                @include('partials.alert')
+                @yield('content')
+            </main>
 
-    <footer>
-        &copy; {{ date('Y') }} Sistem Peminjaman Ruang Kampus
-    </footer>
+            <footer>
+                &copy; {{ date('Y') }} Sistem Peminjaman Ruang Kampus
+            </footer>
+        </div>
+    </div>
     <script src="{{ asset('js/app.js') }}" defer></script>
 </body>
 </html>

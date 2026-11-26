@@ -14,15 +14,175 @@ class ApiBookingTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_peminjam_dashboard_has_explore_menu(): void
+    public function test_peminjam_dashboard_has_home_menu(): void
     {
         $peminjam = $this->createUser('peminjam');
 
         $this->actingAs($peminjam)
             ->get('/dashboard')
             ->assertOk()
-            ->assertSee('Jelajahi Ruang')
+            ->assertSee('Beranda')
+            ->assertSee('Jelajahi')
+            ->assertSee('Daftar Ruang')
+            ->assertSee('Cara Booking')
+            ->assertSee('Peminjaman Saya')
+            ->assertSee('aria-controls="sidebar-content"', false)
+            ->assertSee('class="nav-backdrop"', false)
+            ->assertSee('Pinjam ruang kampus jadi lebih mudah.')
             ->assertDontSee('>Dashboard</a>', false);
+    }
+
+    public function test_peminjam_can_read_booking_guide(): void
+    {
+        $peminjam = $this->createUser('peminjam');
+
+        $this->actingAs($peminjam)
+            ->get('/cara-booking')
+            ->assertOk()
+            ->assertSee('Empat langkah mudah dari memilih ruang sampai pengajuan disetujui.')
+            ->assertSee('Arti status pengajuan')
+            ->assertSee('Sebelum mengajukan')
+            ->assertSee('Lihat daftar ruang');
+    }
+
+    public function test_peminjam_can_explore_rooms_on_an_interactive_floor_plan(): void
+    {
+        $peminjam = $this->createUser('peminjam');
+        $room = $this->createRoom();
+
+        $response = $this->actingAs($peminjam)
+            ->get('/rooms')
+            ->assertOk()
+            ->assertSee('floorplan-svg', false)
+            ->assertSee('floor-room is-off', false)
+            ->assertDontSee('room-furniture', false)
+            ->assertDontSee('plan-lobby', false)
+            ->assertSee('TOILET PRIA')
+            ->assertSee('TOILET WANITA')
+            ->assertSee('TANGGA')
+            ->assertSee('LIFT')
+            ->assertDontSee('LOBI')
+            ->assertDontSee('AREA BERSAMA')
+            ->assertSee('Ruang Uji')
+            ->assertSee('room-status-dot is-available', false)
+            ->assertSee('room_id=' . $room->id, false);
+
+        $this->assertSame(7, substr_count($response->getContent(), 'class="floor-room '));
+    }
+
+    public function test_long_room_names_wrap_inside_the_floor_plan_room(): void
+    {
+        $peminjam = $this->createUser('peminjam');
+        $room = $this->createRoom();
+        $room->update(['nama' => 'Ruang Kelas Laboratorium Komputer 204']);
+
+        $response = $this->actingAs($peminjam)
+            ->get('/rooms')
+            ->assertOk()
+            ->assertSee('Ruang Kelas')
+            ->assertSee('Laboratorium')
+            ->assertSee('Komputer 204');
+
+        $this->assertSame(3, substr_count($response->getContent(), '<tspan'));
+    }
+
+    public function test_floor_plan_shows_room_booking_status_dots(): void
+    {
+        $peminjam = $this->createUser('peminjam');
+        $room = $this->createRoom();
+        $otherRoom = Room::create([
+            'room_category_id' => $room->room_category_id,
+            'kode' => 'RK-RAWAT',
+            'nama' => 'Ruang Perawatan',
+            'kapasitas' => 20,
+            'lokasi' => 'Sayap kanan',
+            'gedung' => $room->gedung,
+            'lantai' => $room->lantai,
+            'posisi_denah' => 2,
+            'status' => 'perbaikan',
+        ]);
+        Booking::create([
+            'user_id' => $peminjam->id,
+            'room_id' => $room->id,
+            'tanggal' => now()->toDateString(),
+            'jam_mulai' => '09:00',
+            'jam_selesai' => '10:00',
+            'keperluan' => 'Kegiatan uji',
+            'status' => 'disetujui',
+        ]);
+
+        $this->actingAs($peminjam)
+            ->get('/rooms')
+            ->assertOk()
+            ->assertSee('room-status-dot is-used', false)
+            ->assertSee('room-status-dot is-maintenance', false)
+            ->assertSee('Digunakan hari ini')
+            ->assertSee('Dalam perawatan');
+    }
+
+    public function test_floor_plan_shows_rooms_from_all_buildings_by_floor(): void
+    {
+        $peminjam = $this->createUser('peminjam');
+        $category = RoomCategory::create([
+            'nama' => 'Kategori Seluruh Kampus',
+            'deskripsi' => 'Kategori pengujian jumlah ruang lintas gedung',
+        ]);
+
+        foreach ([1 => 5, 2 => 4, 3 => 1] as $lantai => $jumlahRuang) {
+            for ($nomor = 1; $nomor <= $jumlahRuang; $nomor++) {
+                Room::create([
+                    'room_category_id' => $category->id,
+                    'kode' => "RK-L{$lantai}-{$nomor}",
+                    'nama' => "Ruang Lantai {$lantai} Nomor {$nomor}",
+                    'kapasitas' => 20,
+                    'lokasi' => 'Koridor',
+                    'gedung' => 'Gedung ' . chr(64 + $nomor),
+                    'lantai' => $lantai,
+                    'posisi_denah' => 1,
+                    'status' => 'tersedia',
+                ]);
+            }
+        }
+
+        foreach ([1 => 5, 2 => 4, 3 => 1] as $lantai => $jumlahRuang) {
+            $response = $this->actingAs($peminjam)
+                ->get('/rooms?lantai=' . $lantai)
+                ->assertOk()
+                ->assertSee("{$jumlahRuang} ruang di lantai {$lantai}")
+                ->assertSee('Denah seluruh gedung, lantai ' . $lantai, false);
+
+            $this->assertSame(
+                $jumlahRuang,
+                substr_count($response->getContent(), 'class="floor-room-link"')
+            );
+            $this->assertSame(7, substr_count($response->getContent(), 'class="floor-room '));
+        }
+    }
+
+    public function test_room_slot_seven_is_available_for_a_floor_plan(): void
+    {
+        $admin = $this->createUser('admin', 'admin-slot-seven@kampus.ac.id');
+        $roomCategory = RoomCategory::create([
+            'nama' => 'Kategori Slot Tujuh',
+            'deskripsi' => 'Kategori pengujian denah tujuh ruang',
+        ]);
+        $login = $this->postJson('/api/login', [
+            'email' => $admin->email,
+            'password' => 'password',
+        ]);
+
+        $this->withToken($login->json('token'))->postJson('/api/rooms', [
+            'room_category_id' => $roomCategory->id,
+            'kode' => 'RK-SLOT-7',
+            'nama' => 'Ruang Slot Tujuh',
+            'kapasitas' => 20,
+            'lokasi' => 'Sayap kanan',
+            'gedung' => 'Gedung Tujuh',
+            'lantai' => 1,
+            'posisi_denah' => 7,
+            'status' => 'tersedia',
+        ])->assertCreated()
+            ->assertJsonPath('data.posisi_denah', 7);
     }
 
     public function test_petugas_dashboard_has_dashboard_menu(): void

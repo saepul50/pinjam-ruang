@@ -4,20 +4,12 @@
 
 @section('content')
     @include('partials.page-header', [
-        'eyebrow' => 'ROOM DISCOVERY',
-        'title' => 'Temukan ruang yang tepat untuk setiap ide.',
-        'subtitle' => 'Jelajahi gedung, pilih lantai, dan temukan ruangan kampus yang tersedia.',
+        'eyebrow' => 'JELAJAHI KAMPUS',
+        'title' => 'Pilih ruang langsung dari denah.',
+        'subtitle' => 'Pilih lantai untuk melihat ruang dari seluruh gedung kampus.',
     ])
 
-    <form class="searchbar" method="GET" action="{{ route('rooms.index') }}">
-        <div class="searchfield">
-            <label for="gedung">Gedung</label>
-            <select name="gedung" id="gedung">
-                @foreach ($gedungs as $gedung)
-                    <option value="{{ $gedung }}" @selected($gedungAktif === $gedung)>{{ $gedung }}</option>
-                @endforeach
-            </select>
-        </div>
+    {{-- <form class="searchbar" method="GET" action="{{ route('rooms.index') }}">
         <div class="searchfield">
             <label for="lantai">Lantai</label>
             <select name="lantai" id="lantai">
@@ -27,7 +19,7 @@
             </select>
         </div>
         <button type="submit" class="btn btn-primary">Tampilkan Denah →</button>
-    </form>
+    </form> --}}
 
     @include('partials.explore-workspace', ['floorRoute' => 'rooms.index'])
 @endsection

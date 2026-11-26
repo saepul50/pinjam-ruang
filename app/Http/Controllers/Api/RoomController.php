@@ -155,9 +155,9 @@ class RoomController extends Controller
 
         $rooms = $query->get(['posisi_denah']);
 
-        if ($rooms->count() >= 4) {
+        if ($rooms->count() >= 7) {
             throw ValidationException::withMessages([
-                'lantai' => 'Lantai ini sudah penuh (maksimal 4 ruang)',
+                'lantai' => 'Lantai ini sudah penuh (maksimal 7 ruang)',
             ]);
         }
 
@@ -173,14 +173,14 @@ class RoomController extends Controller
 
         $terpakai = $rooms->pluck('posisi_denah')->filter()->map(fn ($slot) => (int) $slot)->all();
 
-        for ($slot = 1; $slot <= 4; $slot++) {
+        for ($slot = 1; $slot <= 7; $slot++) {
             if (! in_array($slot, $terpakai, true)) {
                 return $slot;
             }
         }
 
         throw ValidationException::withMessages([
-            'lantai' => 'Lantai ini sudah penuh (maksimal 4 ruang)',
+            'lantai' => 'Lantai ini sudah penuh (maksimal 7 ruang)',
         ]);
     }
 
@@ -202,7 +202,7 @@ class RoomController extends Controller
             'status' => 'required|in:tersedia,perbaikan,nonaktif',
             'gedung' => 'required|string|max:100',
             'lantai' => 'required|integer|min:1|max:20',
-            'posisi_denah' => 'nullable|integer|between:1,4',
+            'posisi_denah' => 'nullable|integer|between:1,7',
             'foto_url' => 'nullable|url:http,https|max:255',
         ], [
             'room_category_id.required' => 'Kategori ruang wajib dipilih.',

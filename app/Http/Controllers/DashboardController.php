@@ -20,6 +20,9 @@ class DashboardController extends Controller
             $data['peminjamanHariIni'] = Booking::whereDate('tanggal', now()->toDateString())->count();
         } else {
             $data['jumlahPeminjamanSaya'] = Booking::where('user_id', $user->id)->count();
+            $data['tanggalAktif'] = $request->filled('tanggal')
+                ? $request->date('tanggal')->toDateString()
+                : now()->toDateString();
             $data['peminjamanTerdekat'] = Booking::with('room')
                 ->where('user_id', $user->id)
                 ->whereIn('status', ['menunggu', 'disetujui'])
@@ -43,6 +46,10 @@ class DashboardController extends Controller
                 $data['lantaiAktif'] = (int) ($data['lantaiList']->first() ?? 1);
             }
             $data['ruangDenah'] = Room::with('roomCategory')
+                ->withExists(['bookings as booking_disetujui_pada_tanggal' => function ($query) use ($data) {
+                    $query->whereDate('tanggal', $data['tanggalAktif'])
+                        ->where('status', 'disetujui');
+                }])
                 ->where('gedung', $data['gedungAktif'])
                 ->where('lantai', $data['lantaiAktif'])
                 ->orderBy('posisi_denah')
